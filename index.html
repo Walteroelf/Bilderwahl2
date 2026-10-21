@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 3</title>
+  <title>Sprachverständnis-App – Version 4</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -18,7 +18,7 @@
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 3</div>
+    <div class="version">Version 4</div>
     <div class="score hidden" id="score"></div>
   </header>
 
@@ -52,7 +52,8 @@
       <div id="setList" class="set-list"></div>
 
       <div class="button-row">
-        <button id="newSetButton">+ Neues Wortset</button>
+        <button id="librarySetButton">+ Wortfeld aus der Sammlung</button>
+        <button id="newSetButton" class="secondary">+ Eigenes Wortset</button>
         <button id="importSetButton" class="secondary">Wortset importieren</button>
         <input type="file" id="importInput" accept=".json,application/json" class="hidden" />
       </div>
@@ -112,6 +113,28 @@
         Am besten die App über „Teilen → Zum Home-Bildschirm“ als App ablegen
         und wichtige Wortsets ab und zu exportieren (Sicherung, Weitergeben an Kolleginnen und Kollegen).
       </p>
+
+      <p class="credit" id="homeCredit"></p>
+    </div>
+  </div>
+
+  <!-- Sammlung mitgelieferter Wortfelder -->
+  <div class="modal-backdrop hidden" id="libraryScreen">
+    <div class="modal">
+      <h2>Wortfelder aus der Sammlung</h2>
+      <p class="hint">
+        Fertige Wortfelder mit Piktogrammen. Ein Wortfeld wird als eigenes Wortset angelegt
+        und lässt sich danach wie jedes andere bearbeiten – z. B. Wörter entfernen
+        oder eigene Fotos ergänzen.
+      </p>
+
+      <div id="libraryList" class="set-list"></div>
+
+      <p class="credit" id="libraryCredit"></p>
+
+      <div class="button-row">
+        <button id="libraryBackButton" class="secondary">Zurück</button>
+      </div>
     </div>
   </div>
 
@@ -174,6 +197,7 @@
   </div>
 
   <script src="js/words.js"></script>
+  <script src="js/wordfields.js"></script>
   <script src="js/db.js"></script>
   <script src="js/speech.js"></script>
   <script src="js/celebration.js"></script>

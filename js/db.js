@@ -2,7 +2,8 @@
   Speicherung auf dem Gerät (IndexedDB).
 
   sets:  { id, name, createdAt }
-  words: { id, setId, noun, form, image (Blob), audio (Blob | null), order }
+  words: { id, setId, noun, form, image (Blob), audio (Blob | null), credit, order }
+         credit: Herkunft des Bildes, z. B. "ARASAAC" (sonst null = eigenes Bild)
   stats: { wordId, seen, firstTry, history: [true/false …], lastSeen }
 
   Alles bleibt lokal im Browser dieses Geräts.
@@ -99,6 +100,7 @@ async function saveSet(set, words) {
       form: word.form,
       image: word.image,
       audio: word.audio || null,
+      credit: word.credit || null,
       order: index
     });
   });

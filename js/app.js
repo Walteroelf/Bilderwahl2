@@ -68,6 +68,10 @@ function saveSettings() {
 /* ---------- Elemente ---------- */
 
 const homeScreen = document.getElementById("homeScreen");
+const libraryScreen = document.getElementById("libraryScreen");
+const libraryList = document.getElementById("libraryList");
+const librarySetButton = document.getElementById("librarySetButton");
+const libraryBackButton = document.getElementById("libraryBackButton");
 const editorScreen = document.getElementById("editorScreen");
 const statsScreen = document.getElementById("statsScreen");
 
@@ -130,6 +134,8 @@ let mistakeInRound = false;
 /* ---------- Start ---------- */
 
 applySettingsToForm();
+document.getElementById("homeCredit").innerHTML = ARASAAC_CREDIT_HTML;
+document.getElementById("libraryCredit").innerHTML = ARASAAC_CREDIT_HTML;
 requestPersistentStorage();
 showHome();
 
@@ -140,6 +146,8 @@ genusToggle.addEventListener("change", updateSettingsFromForm);
 recordingsToggle.addEventListener("change", updateSettingsFromForm);
 
 newSetButton.addEventListener("click", () => openEditor(null));
+librarySetButton.addEventListener("click", showLibrary);
+libraryBackButton.addEventListener("click", showHome);
 importSetButton.addEventListener("click", () => importInput.click());
 importInput.addEventListener("change", importSetFromFile);
 
@@ -178,7 +186,7 @@ function updateSettingsFromForm() {
 }
 
 function showScreen(screen) {
-  [homeScreen, editorScreen, statsScreen].forEach(element => {
+  [homeScreen, libraryScreen, editorScreen, statsScreen].forEach(element => {
     element.classList.toggle("hidden", element !== screen);
   });
 }
@@ -199,6 +207,7 @@ async function renderSetList() {
     setList.innerHTML = "<p class=\"warning\">Dieser Browser kann keine Wortsets speichern " +
       "(z. B. im privaten Modus). Bitte in einem normalen Fenster öffnen.</p>";
     newSetButton.disabled = true;
+    librarySetButton.disabled = true;
     importSetButton.disabled = true;
     return;
   }
@@ -222,6 +231,7 @@ function buildSetCard(set, words) {
   card.className = "set-card";
 
   const missing = words.filter(word => !word.form).length;
+  const usesArasaac = words.some(word => word.credit === "ARASAAC");
   const playable = words.length - missing >= settings.numberOfChoices;
 
   const thumbs = document.createElement("div");
@@ -239,6 +249,7 @@ function buildSetCard(set, words) {
   info.className = "set-info";
   info.innerHTML = "<strong>" + escapeHtml(set.name) + "</strong><br />" +
     words.length + " Wörter" +
+    (usesArasaac ? " · <span class=\"hint\">Piktogramme: ARASAAC</span>" : "") +
     (missing > 0 ? " · <span class=\"warning\">" + missing + " ohne Artikel</span>" : "") +
     (!playable && missing === 0 ? " · <span class=\"warning\">mindestens " + settings.numberOfChoices + " Wörter nötig</span>" : "");
 
@@ -287,7 +298,8 @@ async function openEditor(set) {
     form: word.form,
     image: word.image,
     imageUrl: URL.createObjectURL(word.image),
-    audio: word.audio || null
+    audio: word.audio || null,
+    credit: word.credit || null
   }));
 
   editorTitle.textContent = set ? "Wortset bearbeiten" : "Neues Wortset";
@@ -334,7 +346,8 @@ async function addFilesToEditor(event) {
       form: parsed.form,
       image: image,
       imageUrl: URL.createObjectURL(image),
-      audio: null
+      audio: null,
+      credit: null
     });
   }
 
@@ -583,6 +596,78 @@ async function saveEditor() {
   closeEditor();
 }
 
+/* ---------- Sammlung mitgelieferter Wortfelder ---------- */
+
+function showLibrary() {
+  showScreen(libraryScreen);
+
+  libraryList.innerHTML = "";
+
+  WORD_FIELDS.forEach(field => {
+    const card = document.createElement("div");
+    card.className = "set-card";
+
+    const thumbs = document.createElement("div");
+    thumbs.className = "set-thumbs";
+
+    field.words.slice(0, 6).forEach(word => {
+      const img = document.createElement("img");
+      img.src = getPictogramUrl(word.picto);
+      img.alt = "";
+      img.loading = "lazy";
+      thumbs.appendChild(img);
+    });
+
+    const info = document.createElement("div");
+    info.className = "set-info";
+    info.innerHTML = "<strong>" + escapeHtml(field.name) + "</strong><br />" +
+      "<span class=\"hint\">" + field.words.map(word => escapeHtml(getDisplayName(word))).join(", ") + "</span>";
+
+    const actions = document.createElement("div");
+    actions.className = "set-actions";
+
+    const addButton = makeButton("Als Wortset anlegen", "", async () => {
+      addButton.disabled = true;
+      addButton.textContent = "Wird angelegt …";
+
+      try {
+        await addWordFieldAsSet(field);
+        showHome();
+      } catch (error) {
+        addButton.disabled = false;
+        addButton.textContent = "Als Wortset anlegen";
+        alert("Die Bilder konnten nicht geladen werden. Besteht eine Internetverbindung?");
+      }
+    });
+
+    actions.appendChild(addButton);
+
+    card.appendChild(thumbs);
+    card.appendChild(info);
+    card.appendChild(actions);
+
+    libraryList.appendChild(card);
+  });
+}
+
+async function addWordFieldAsSet(field) {
+  const words = await Promise.all(field.words.map(async word => {
+    const response = await fetch(getPictogramUrl(word.picto));
+    if (!response.ok) throw new Error("Bild fehlt: " + word.picto);
+
+    return {
+      id: createId(),
+      noun: word.noun,
+      form: word.form,
+      image: await response.blob(),
+      audio: null,
+      credit: "ARASAAC"
+    };
+  }));
+
+  await saveSet({ id: createId(), name: field.name, createdAt: Date.now() }, words);
+}
+
 /* ---------- Export und Import ---------- */
 
 function blobToDataUrl(blob) {
@@ -608,7 +693,8 @@ async function exportSet(set, words) {
       noun: word.noun,
       form: word.form,
       image: await blobToDataUrl(word.image),
-      audio: word.audio ? await blobToDataUrl(word.audio) : null
+      audio: word.audio ? await blobToDataUrl(word.audio) : null,
+      credit: word.credit || null
     })))
   };
 
@@ -641,7 +727,8 @@ async function importSetFromFile(event) {
       noun: String(word.noun || ""),
       form: ["der", "die", "das", "pl"].includes(word.form) ? word.form : null,
       image: await dataUrlToBlob(word.image),
-      audio: word.audio ? await dataUrlToBlob(word.audio) : null
+      audio: word.audio ? await dataUrlToBlob(word.audio) : null,
+      credit: word.credit === "ARASAAC" ? "ARASAAC" : null
     })));
 
     await saveSet(set, words);
