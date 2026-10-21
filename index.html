@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – PL-Fix 2</title>
+  <title>Sprachverständnis-App – Version 2</title>
 
   <style>
     :root {
@@ -49,8 +49,14 @@
       font-weight: 700;
     }
 
+    .score {
+      margin-top: 0.25rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
     main {
-      padding: 1rem;
+      padding: 1rem 1rem 6rem;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -240,13 +246,33 @@
       background: #f1f5f9;
       color: #334155;
       font-size: 0.9rem;
-      max-height: 160px;
+      max-height: 220px;
       overflow-y: auto;
     }
 
     .recognized-list ul {
       margin: 0.4rem 0 0;
-      padding-left: 1.2rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .recognized-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.25rem 0;
+    }
+
+    .recognized-list li img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .recognized-list li.unusable {
+      color: var(--error);
     }
 
     .celebration-piece {
@@ -373,7 +399,8 @@
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version: PL-Fix 2</div>
+    <div class="version">Version 2</div>
+    <div class="score hidden" id="score"></div>
   </header>
 
   <main>
@@ -465,7 +492,18 @@
     let numberOfChoices = 2;
     let selectedFileCountBeforeLimit = 0;
 
+    // Reihenfolge der gesuchten Bilder: jedes Bild kommt einmal dran,
+    // bevor sich eines wiederholt.
+    let targetQueue = [];
+    let lastTarget = null;
+
+    // Auswertung für die laufende Sitzung
+    let roundsPlayed = 0;
+    let correctOnFirstTry = 0;
+    let mistakeInRound = false;
+
     let availableVoices = [];
+    let fileSelectionId = 0;
 
     const wrongMessages = [
       "Leider falsch.",
@@ -532,6 +570,7 @@
 
     const instruction = document.getElementById("instruction");
     const imageGrid = document.getElementById("imageGrid");
+    const scoreDisplay = document.getElementById("score");
 
     const repeatButton = document.getElementById("repeatButton");
     const nextButton = document.getElementById("nextButton");
@@ -549,7 +588,8 @@
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
 
-    function handleFileSelection(event) {
+    async function handleFileSelection(event) {
+      const selectionId = ++fileSelectionId;
       const allSelectedFiles = Array.from(event.target.files);
       selectedFileCountBeforeLimit = allSelectedFiles.length;
 
@@ -559,19 +599,47 @@
 
       images.forEach(image => URL.revokeObjectURL(image.url));
 
-      images = selectedFiles.map(file => {
+      const candidates = selectedFiles.map(file => {
         const parsedImage = parseImageName(file.name);
 
         return {
           originalFileName: file.name,
           name: parsedImage.name,
           isPlural: parsedImage.isPlural,
-          url: URL.createObjectURL(file)
+          url: URL.createObjectURL(file),
+          usable: true
         };
       });
 
+      images = [];
+      fileInfo.textContent = "Bilder werden geprüft …";
+      startButton.disabled = true;
+
+      // Manche Formate (z. B. HEIC außerhalb von Safari) kann der Browser
+      // nicht anzeigen. Solche Bilder werden erkannt und nicht verwendet.
+      await Promise.all(candidates.map(async image => {
+        image.usable = await canDisplayImage(image.url);
+      }));
+
+      if (selectionId !== fileSelectionId) return;
+
+      images = candidates;
+
       updateStartButton();
       updateRecognizedList();
+    }
+
+    function canDisplayImage(url) {
+      return new Promise(resolve => {
+        const testImage = new Image();
+        testImage.onload = () => resolve(testImage.naturalWidth > 0);
+        testImage.onerror = () => resolve(false);
+        testImage.src = url;
+      });
+    }
+
+    function getUsableImages() {
+      return images.filter(image => image.usable);
     }
 
     function isImageFile(file) {
@@ -591,18 +659,30 @@
     function updateStartButton() {
       numberOfChoices = Number(imageCountSelect.value);
 
-      if (images.length < numberOfChoices) {
+      const usableCount = getUsableImages().length;
+      const unusableCount = images.length - usableCount;
+
+      if (usableCount < numberOfChoices) {
         fileInfo.textContent = "Bitte mindestens " + numberOfChoices + " Bilder auswählen.";
+
+        if (unusableCount > 0) {
+          fileInfo.textContent += " (" + unusableCount + " Bild(er) können nicht angezeigt werden.)";
+        }
+
         startButton.disabled = true;
         return;
       }
 
       if (selectedFileCountBeforeLimit > MAX_FILES) {
         fileInfo.textContent =
-          images.length + " Bilder ausgewählt. Es werden nur die ersten 20 Bilder verwendet.";
+          usableCount + " Bilder ausgewählt. Es werden nur die ersten 20 Bilder verwendet.";
       } else {
         fileInfo.textContent =
-          images.length + " Bild(er) ausgewählt.";
+          usableCount + " Bild(er) ausgewählt.";
+      }
+
+      if (unusableCount > 0) {
+        fileInfo.textContent += " " + unusableCount + " Bild(er) können nicht angezeigt werden und werden übersprungen.";
       }
 
       startButton.disabled = false;
@@ -618,8 +698,14 @@
       let html = "<strong>Erkannte Namen:</strong><ul>";
 
       images.forEach(image => {
-        const question = buildQuestionForImage(image);
-        html += "<li>" + escapeHtml(image.originalFileName) + " → <strong>" + escapeHtml(question) + "</strong></li>";
+        if (image.usable) {
+          const question = buildQuestionForImage(image);
+          html += "<li><img src=\"" + image.url + "\" alt=\"\" />" +
+            "<span>" + escapeHtml(image.originalFileName) + " → <strong>" + escapeHtml(question) + "</strong></span></li>";
+        } else {
+          html += "<li class=\"unusable\"><span>" + escapeHtml(image.originalFileName) +
+            " → <strong>kann nicht angezeigt werden</strong> (bitte als JPG oder PNG speichern)</span></li>";
+        }
       });
 
       html += "</ul>";
@@ -639,53 +725,50 @@
 
     function cleanFileName(fileName) {
       return String(fileName)
+        .replace(/^﻿/, "")
         .replace(/\.[^/.]+$/, "")
         .replace(/[_-]+/g, " ")
         .replace(/\s+/g, " ")
         .trim();
     }
 
+    /*
+      Plural-Erkennung.
+
+      Erkannt wird vorne:
+      - PL die Handschuhe.png
+      - pl die Handschuhe.png
+      - Plural die Handschuhe.png
+      - Mehrzahl die Handschuhe.png
+      - [PL] die Handschuhe.png
+      - (PL) die Handschuhe.png
+      - {PL} die Handschuhe.png
+
+      Erkannt wird hinten:
+      - die Handschuhe PL.png
+      - die Handschuhe [PL].png
+      - die Handschuhe (PL).png
+      - die Handschuhe plural.png
+    */
+    const PLURAL_MARKER =
+      "(?:\\[\\s*(?:pl|plural|mehrzahl)\\s*\\]|\\(\\s*(?:pl|plural|mehrzahl)\\s*\\)|\\{\\s*(?:pl|plural|mehrzahl)\\s*\\}|(?:pl|plural|mehrzahl)(?![a-zäöüß]))";
+
+    const pluralPrefixPattern = new RegExp("^\\s*" + PLURAL_MARKER + "\\s*", "i");
+    const pluralSuffixPattern = new RegExp("(?:^|\\s)" + PLURAL_MARKER + "\\s*$", "i");
+
     function parseImageName(fileName) {
       let name = cleanFileName(fileName);
       let isPlural = false;
 
-      /*
-        Robuste Plural-Erkennung.
-
-        Erkannt wird vorne:
-        - PL die Handschuhe.png
-        - pl die Handschuhe.png
-        - Plural die Handschuhe.png
-        - Mehrzahl die Handschuhe.png
-        - [PL] die Handschuhe.png
-        - (PL) die Handschuhe.png
-
-        Erkannt wird hinten:
-        - die Handschuhe PL.png
-        - die Handschuhe [PL].png
-        - die Handschuhe (PL).png
-        - die Handschuhe plural.png
-      */
-
-      name = name.replace(/^\uFEFF/, "").trim();
-
-      const prefixPattern =
-        /^\s*(?:$$(?:pl|plural|mehrzahl)$$|$(?:pl|plural|mehrzahl)$|\{(?:pl|plural|mehrzahl)\}|(?:pl|plural|mehrzahl)(?=\s|[._-]|$))[\s._-]*/i;
-
-      const suffixPattern =
-        /[\s._-]*(?:$$(?:pl|plural|mehrzahl)$$|$(?:pl|plural|mehrzahl)$|\{(?:pl|plural|mehrzahl)\}|(?:pl|plural|mehrzahl))\s*$/i;
-
-      if (prefixPattern.test(name)) {
+      if (pluralPrefixPattern.test(name)) {
         isPlural = true;
-        name = name.replace(prefixPattern, "").trim();
+        name = name.replace(pluralPrefixPattern, "").trim();
       }
 
-      if (suffixPattern.test(name)) {
+      if (pluralSuffixPattern.test(name)) {
         isPlural = true;
-        name = name.replace(suffixPattern, "").trim();
+        name = name.replace(pluralSuffixPattern, "").trim();
       }
-
-      name = removeAccidentalPluralMarkerInsideName(name);
 
       return {
         name: name,
@@ -693,62 +776,18 @@
       };
     }
 
-    function removeAccidentalPluralMarkerInsideName(name) {
-      /*
-        Sicherheitsnetz:
-        Falls aus irgendeinem Grund immer noch "PL die Handschuhe"
-        im Namen steckt, wird PL hier entfernt.
-      */
-
-      return String(name)
-        .replace(/^\s*(pl|plural|mehrzahl)\s+/i, "")
-        .replace(/\s+(pl|plural|mehrzahl)\s*$/i, "")
-        .replace(/^\s*[$$$\{]\s*(pl|plural|mehrzahl)\s*[$$$\}]\s*/i, "")
-        .replace(/\s*[$$$\{]\s*(pl|plural|mehrzahl)\s*[$$$\}]\s*$/i, "")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-
-    function normalizeImageForSpeech(image) {
-      /*
-        Sehr wichtiger Zusatz:
-        Direkt vor dem Sprechen wird nochmals geprüft.
-        Dadurch kann "Wo ist PL die Handschuhe?" nicht mehr entstehen.
-      */
-
-      const parsedFromOriginal = parseImageName(image.originalFileName || image.name);
-      const parsedFromCurrentName = parseImageName(image.name);
-
-      const finalName = removeAccidentalPluralMarkerInsideName(
-        parsedFromOriginal.name || parsedFromCurrentName.name || image.name
-      );
-
-      const finalIsPlural =
-        Boolean(image.isPlural) ||
-        Boolean(parsedFromOriginal.isPlural) ||
-        Boolean(parsedFromCurrentName.isPlural) ||
-        /^\s*(pl|plural|mehrzahl)\s+/i.test(image.name);
-
-      return {
-        name: finalName,
-        isPlural: finalIsPlural
-      };
-    }
-
     function buildQuestionForImage(image) {
-      const normalizedImage = normalizeImageForSpeech(image);
-
-      if (normalizedImage.isPlural) {
-        return "Wo sind " + normalizedImage.name + "?";
+      if (image.isPlural) {
+        return "Wo sind " + image.name + "?";
       }
 
-      return "Wo ist " + normalizedImage.name + "?";
+      return "Wo ist " + image.name + "?";
     }
 
     function startApp() {
       numberOfChoices = Number(imageCountSelect.value);
 
-      if (images.length < numberOfChoices) {
+      if (getUsableImages().length < numberOfChoices) {
         updateStartButton();
         return;
       }
@@ -759,11 +798,15 @@
       nextButton.classList.add("hidden");
       repeatButton.classList.remove("hidden");
 
-      speak("Los geht's.");
+      targetQueue = [];
+      lastTarget = null;
+      roundsPlayed = 0;
+      correctOnFirstTry = 0;
+      updateScore();
 
-      setTimeout(() => {
+      speak("Los geht's.", () => {
         nextRound();
-      }, 800);
+      });
     }
 
     function openSettings() {
@@ -789,6 +832,7 @@
 
     function nextRound() {
       answered = false;
+      mistakeInRound = false;
 
       nextButton.classList.add("hidden");
       settingsButton.classList.add("hidden");
@@ -796,8 +840,13 @@
       imageGrid.innerHTML = "";
       imageGrid.style.setProperty("--columns", numberOfChoices);
 
-      currentChoices = getRandomImages(numberOfChoices);
-      correctImage = getRandomItem(currentChoices);
+      correctImage = getNextTarget();
+      lastTarget = correctImage;
+
+      const distractors = shuffle(getUsableImages().filter(image => image !== correctImage))
+        .slice(0, numberOfChoices - 1);
+
+      currentChoices = shuffle([correctImage, ...distractors]);
 
       renderImageCards();
 
@@ -808,14 +857,29 @@
       }, 500);
     }
 
+    function getNextTarget() {
+      if (targetQueue.length === 0) {
+        targetQueue = shuffle(getUsableImages());
+
+        // Nicht dasselbe Bild zweimal hintereinander suchen lassen
+        if (targetQueue.length > 1 && targetQueue[targetQueue.length - 1] === lastTarget) {
+          targetQueue.unshift(targetQueue.pop());
+        }
+      }
+
+      return targetQueue.pop();
+    }
+
     function renderImageCards() {
       currentChoices.forEach(image => {
         const card = document.createElement("div");
         card.classList.add("image-card");
+        card.setAttribute("role", "button");
+        card.tabIndex = 0;
 
         const img = document.createElement("img");
         img.src = image.url;
-        img.alt = normalizeImageForSpeech(image).name;
+        img.alt = image.name;
 
         card.appendChild(img);
 
@@ -823,13 +887,26 @@
           checkAnswer(image, card);
         });
 
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            checkAnswer(image, card);
+          }
+        });
+
         imageGrid.appendChild(card);
       });
     }
 
-    function getRandomImages(amount) {
-      const shuffled = [...images].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, amount);
+    function shuffle(array) {
+      const result = [...array];
+
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+
+      return result;
     }
 
     function speakCurrentWord() {
@@ -839,11 +916,26 @@
       speak(question);
     }
 
+    function updateScore() {
+      if (roundsPlayed === 0) {
+        scoreDisplay.classList.add("hidden");
+        return;
+      }
+
+      scoreDisplay.textContent =
+        "Beim ersten Versuch richtig: " + correctOnFirstTry + " von " + roundsPlayed;
+      scoreDisplay.classList.remove("hidden");
+    }
+
     function checkAnswer(selectedImage, selectedCard) {
       if (answered || !correctImage) return;
 
       if (selectedImage === correctImage) {
         answered = true;
+
+        roundsPlayed++;
+        if (!mistakeInRound) correctOnFirstTry++;
+        updateScore();
 
         const feedback = getRandomItem(correctMessages);
 
@@ -859,12 +951,17 @@
         }, 1200);
 
       } else {
+        mistakeInRound = true;
+
         const wrongMessage = getRandomItem(wrongMessages);
 
         selectedCard.classList.add("wrong");
         instruction.textContent = wrongMessage;
 
-        speak(wrongMessage);
+        // Nach dem Hinweis wird die Frage automatisch wiederholt
+        speak(wrongMessage, () => {
+          if (!answered) speakCurrentWord();
+        });
 
         setTimeout(() => {
           selectedCard.classList.remove("wrong");
@@ -911,9 +1008,24 @@
       return germanVoices[0];
     }
 
-    function speak(text) {
+    let speechToken = 0;
+
+    function speak(text, onDone) {
+      const token = ++speechToken;
+      let finished = false;
+
+      // onDone wird genau einmal aufgerufen – auch wenn der Browser kein
+      // "end"-Ereignis liefert – und nicht mehr, wenn inzwischen etwas
+      // anderes gesprochen wird.
+      const finish = () => {
+        if (finished || token !== speechToken) return;
+        finished = true;
+        if (onDone) onDone();
+      };
+
       if (!("speechSynthesis" in window)) {
         console.warn("Sprachausgabe wird von diesem Browser nicht unterstützt.");
+        setTimeout(finish, 300);
         return;
       }
 
@@ -927,10 +1039,18 @@
       utterance.pitch = 1.0;
       utterance.volume = 1;
 
+      utterance.onend = () => setTimeout(finish, 250);
+      utterance.onerror = () => setTimeout(finish, 250);
+
+      // Sicherheitsnetz, falls "end" ausbleibt
+      setTimeout(finish, 1500 + text.length * 120);
+
       window.speechSynthesis.speak(utterance);
     }
 
     function stopSpeaking() {
+      speechToken++;
+
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
