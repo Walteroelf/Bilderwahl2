@@ -252,7 +252,6 @@ function answerHouse(binId) {
     instruction.innerHTML = escapeHtml(text) + " <span class=\"genus-" + item.form + "\">" +
       escapeHtml(getDisplayName(item)) + "</span>";
 
-    settingsButton.classList.remove("hidden");
 
     speak(text + " " + getDisplayName(item) + ".", () => {
       if (session.current === item) nextItem();

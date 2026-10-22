@@ -246,7 +246,6 @@ function revealScratchImage() {
 
   setTimeout(() => {
     nextButton.classList.remove("hidden");
-    settingsButton.classList.remove("hidden");
   }, 1200);
 }
 

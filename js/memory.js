@@ -26,9 +26,6 @@ const memoryExercise = {
     // Kein "Noch einmal hören" – jede Karte spricht beim Aufdecken
     repeatButton.classList.add("hidden");
 
-    // Memory hat keine Einzelaufgaben, nach denen ⚙️ erscheint – daher immer zeigen
-    settingsButton.classList.remove("hidden");
-
     memoryOpen = [];
     memoryBusy = false;
     memoryFound = 0;

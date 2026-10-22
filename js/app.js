@@ -49,6 +49,7 @@ const defaultSettings = {
   housesSayArticle: true,
   scratchBrush: "mittel",
   scratchReveal: 0.8,
+  codeLock: true,
   bundledVoice: true
 };
 
@@ -119,6 +120,7 @@ const genusToggle = document.getElementById("genusToggle");
 const recordingsToggle = document.getElementById("recordingsToggle");
 const housesArticleToggle = document.getElementById("housesArticleToggle");
 const scratchBrushSelect = document.getElementById("scratchBrushSelect");
+const codeLockToggle = document.getElementById("codeLockToggle");
 const scratchRevealSelect = document.getElementById("scratchRevealSelect");
 const bundledVoiceToggle = document.getElementById("bundledVoiceToggle");
 
@@ -141,7 +143,6 @@ const scoreDisplay = document.getElementById("score");
 
 const repeatButton = document.getElementById("repeatButton");
 const nextButton = document.getElementById("nextButton");
-const settingsButton = document.getElementById("settingsButton");
 
 /* ---------- Zustand ---------- */
 
@@ -172,6 +173,7 @@ genusToggle.addEventListener("change", updateSettingsFromForm);
 recordingsToggle.addEventListener("change", updateSettingsFromForm);
 housesArticleToggle.addEventListener("change", updateSettingsFromForm);
 scratchBrushSelect.addEventListener("change", updateSettingsFromForm);
+codeLockToggle.addEventListener("change", updateSettingsFromForm);
 scratchRevealSelect.addEventListener("change", updateSettingsFromForm);
 bundledVoiceToggle.addEventListener("change", updateSettingsFromForm);
 
@@ -204,7 +206,6 @@ repeatButton.addEventListener("click", () => {
   if (session.game) session.game.repeat();
 });
 nextButton.addEventListener("click", () => nextItem());
-settingsButton.addEventListener("click", openSettings);
 
 function applySettingsToForm() {
   imageCountSelect.value = String(settings.numberOfChoices);
@@ -215,6 +216,7 @@ function applySettingsToForm() {
   recordingsToggle.checked = settings.recordings;
   housesArticleToggle.checked = settings.housesSayArticle;
   scratchBrushSelect.value = settings.scratchBrush;
+  codeLockToggle.checked = settings.codeLock;
   scratchRevealSelect.value = String(settings.scratchReveal);
   bundledVoiceToggle.checked = settings.bundledVoice;
   setBundledVoiceEnabled(settings.bundledVoice);
@@ -230,6 +232,7 @@ function updateSettingsFromForm() {
     recordings: recordingsToggle.checked,
     housesSayArticle: housesArticleToggle.checked,
     scratchBrush: scratchBrushSelect.value,
+    codeLock: codeLockToggle.checked,
     scratchReveal: Number(scratchRevealSelect.value),
     bundledVoice: bundledVoiceToggle.checked
   };
@@ -1116,8 +1119,9 @@ function formatDue(due) {
 }
 
 // Zurück aus einer Übung zur Übersicht
-function openSettings() {
+function backToOverview() {
   stopActiveGame();
+  gearButton.classList.add("hidden");
 
   instruction.textContent = "Höre gut zu und tippe auf das passende Bild.";
   answerWord.classList.add("hidden");
@@ -1125,7 +1129,6 @@ function openSettings() {
 
   repeatButton.classList.add("hidden");
   nextButton.classList.add("hidden");
-  settingsButton.classList.add("hidden");
 
   showHome();
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 14</title>
+  <title>Sprachverständnis-App – Version 15</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -12,13 +12,13 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#2563eb" />
 
-  <link rel="stylesheet" href="css/style.css?v=14" />
+  <link rel="stylesheet" href="css/style.css?v=15" />
 </head>
 
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 14</div>
+    <div class="version">Version 15</div>
     <div class="score hidden" id="score"></div>
   </header>
 
@@ -97,9 +97,10 @@
     <div class="game-summary hidden" id="gameSummary"></div>
   </main>
 
-  <div class="settings-bar">
-    <button class="hidden" id="settingsButton" aria-label="Zurück zu den Wortfeldern">⚙️</button>
-  </div>
+  <!-- Zahnrad: in jeder Übung jederzeit zu den Einstellungen (mit Zahlen-Code) -->
+  <button class="gear-button hidden" id="gearButton" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" fill-opacity=".15"/></svg>
+  </button>
 
   <div class="repeat-bar">
     <button class="hidden" id="repeatButton">Noch einmal hören</button>
@@ -112,7 +113,12 @@
   <!-- Startseite: Übersicht der Wortfelder -->
   <div class="modal-backdrop" id="homeScreen">
     <div class="modal modal-wide">
-      <h2>Wortfelder</h2>
+      <div class="modal-head">
+        <h2>Wortfelder</h2>
+        <button class="gear-inline" id="homeGearButton" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" fill-opacity=".15"/></svg>
+        </button>
+      </div>
       <p class="hint home-intro">
         <strong>Haken setzen</strong>, um ein oder mehrere Wortfelder zu üben.
         <strong>Wortfeld antippen</strong>, um es anzusehen, zu bearbeiten oder den Lernstand zu sehen.
@@ -129,116 +135,6 @@
         <input type="file" id="importInput" accept=".json,application/json" class="hidden" />
       </div>
 
-      <details class="settings-box">
-        <summary>Einstellungen</summary>
-
-        <label for="roundLengthSelect">
-          <strong>Aufgaben pro Übung:</strong>
-        </label>
-
-        <select id="roundLengthSelect">
-          <option value="5">5 Aufgaben</option>
-          <option value="10">10 Aufgaben</option>
-          <option value="15">15 Aufgaben</option>
-          <option value="20">20 Aufgaben</option>
-          <option value="0">alle Wörter der Auswahl</option>
-        </select>
-
-        <p class="hint">
-          Die App wählt die Wörter selbst aus: zuerst neue und unsichere Wörter,
-          sichere Wörter kommen erst nach einigen Tagen wieder (Wiederholung in Abständen).
-        </p>
-
-        <label for="imageCountSelect">
-          <strong>Anzahl der angezeigten Bilder:</strong>
-        </label>
-
-        <select id="imageCountSelect">
-          <option value="2">2 Bilder</option>
-          <option value="3">3 Bilder</option>
-          <option value="4">4 Bilder</option>
-        </select>
-
-        <label class="toggle">
-          <input type="checkbox" id="errorlessToggle" />
-          <span>
-            <strong>Hilfe nach einem Fehler</strong><br />
-            Das richtige Bild wird gezeigt und benannt („Hier ist der Schal.“). Das Kind tippt es dann an.
-          </span>
-        </label>
-
-        <label class="toggle">
-          <input type="checkbox" id="calmToggle" />
-          <span>
-            <strong>Ruhiger Modus</strong><br />
-            Wenig Animation, immer dieselben kurzen Rückmeldungen.
-          </span>
-        </label>
-
-        <label class="toggle">
-          <input type="checkbox" id="genusToggle" />
-          <span>
-            <strong>Artikel-Farben</strong><br />
-            Nach der richtigen Antwort erscheint das Wort mit
-            <span class="genus-der">der</span> /
-            <span class="genus-die">die</span> /
-            <span class="genus-das">das</span> /
-            <span class="genus-pl">die (Mehrzahl)</span> in Farbe.
-          </span>
-        </label>
-
-        <label class="toggle">
-          <input type="checkbox" id="housesArticleToggle" />
-          <span>
-            <strong>Artikel-Häuser: Artikel mitsprechen</strong><br />
-            An: Die App sagt „der Schal“, das Kind ordnet nach Gehör zu (leichter).
-            Aus: Die App sagt nur „Schal“, das Kind muss den Artikel wissen.
-          </span>
-        </label>
-
-        <div class="settings-group">
-          <strong>Freirubbeln</strong>
-
-          <label for="scratchBrushSelect">Stiftgröße:</label>
-          <select id="scratchBrushSelect">
-            <option value="klein">Klein</option>
-            <option value="mittel">Mittel</option>
-            <option value="gross">Groß</option>
-          </select>
-
-          <label for="scratchRevealSelect">Bild ganz zeigen ab:</label>
-          <select id="scratchRevealSelect">
-            <option value="0.5">50 % freigerubbelt</option>
-            <option value="0.6">60 % freigerubbelt</option>
-            <option value="0.7">70 % freigerubbelt</option>
-            <option value="0.8">80 % freigerubbelt</option>
-            <option value="0.9">90 % freigerubbelt</option>
-          </select>
-        </div>
-
-        <label class="toggle">
-          <input type="checkbox" id="bundledVoiceToggle" />
-          <span>
-            <strong>Natürliche Stimme (Thorsten)</strong><br />
-            Die Wörter der mitgelieferten Wortfelder spricht eine vorab aufgenommene, natürliche Stimme.
-            Aus: Es spricht immer die Stimme des Geräts.
-          </span>
-        </label>
-
-        <label class="toggle">
-          <input type="checkbox" id="recordingsToggle" />
-          <span>
-            <strong>Eigene Sprachaufnahmen</strong><br />
-            Fragen selbst einsprechen. Wo keine Aufnahme da ist, spricht die Computerstimme.
-          </span>
-        </label>
-
-        <div class="offline-box">
-          <strong>Ohne Internet nutzen</strong>
-          <p class="hint" id="offlineStatus">Wird geprüft …</p>
-          <button id="offlineButton" class="secondary">Für Offline-Nutzung laden</button>
-        </div>
-      </details>
 
       <p class="hint">
         Eigene Wortfelder, Änderungen und der Lernstand werden nur auf diesem Gerät in diesem Browser gespeichert.
@@ -393,20 +289,171 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=14"></script>
-  <script src="js/wordfields.js?v=14"></script>
-  <script src="js/voice.js?v=14"></script>
-  <script src="js/db.js?v=14"></script>
-  <script src="js/speech.js?v=14"></script>
-  <script src="js/celebration.js?v=14"></script>
-  <script src="js/app.js?v=14"></script>
-  <script src="js/session.js?v=14"></script>
-  <script src="js/pick.js?v=14"></script>
-  <script src="js/sort.js?v=14"></script>
-  <script src="js/yesno.js?v=14"></script>
-  <script src="js/memory.js?v=14"></script>
-  <script src="js/naming.js?v=14"></script>
-  <script src="js/scratch.js?v=14"></script>
-  <script src="js/offline.js?v=14"></script>
+  <!-- Zahlen-Code vor den Einstellungen (wie im Kirmes-Kiosk) -->
+  <div class="modal-backdrop hidden" id="codeScreen">
+    <div class="modal code-modal">
+      <h2>Einstellungen</h2>
+      <p class="hint">Bitte diese Zahlen eintippen:</p>
+      <p class="code-words" id="codeWords"></p>
+      <div class="code-dots" id="codeDots" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <div class="keypad" id="keypad">
+        <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+        <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+        <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+        <button data-key="back" class="secondary" aria-label="Letzte Zahl löschen">Löschen</button>
+        <button data-key="0">0</button>
+        <button data-key="cancel" class="secondary">Abbrechen</button>
+      </div>
+      <p class="code-error" id="codeError" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <!-- Einstellungen -->
+  <div class="modal-backdrop hidden" id="settingsScreen">
+    <div class="modal">
+      <h2>Einstellungen</h2>
+      <div class="settings-box">
+
+        <label for="roundLengthSelect">
+          <strong>Aufgaben pro Übung:</strong>
+        </label>
+
+        <select id="roundLengthSelect">
+          <option value="5">5 Aufgaben</option>
+          <option value="10">10 Aufgaben</option>
+          <option value="15">15 Aufgaben</option>
+          <option value="20">20 Aufgaben</option>
+          <option value="0">alle Wörter der Auswahl</option>
+        </select>
+
+        <p class="hint">
+          Die App wählt die Wörter selbst aus: zuerst neue und unsichere Wörter,
+          sichere Wörter kommen erst nach einigen Tagen wieder (Wiederholung in Abständen).
+        </p>
+
+        <label for="imageCountSelect">
+          <strong>Anzahl der angezeigten Bilder:</strong>
+        </label>
+
+        <select id="imageCountSelect">
+          <option value="2">2 Bilder</option>
+          <option value="3">3 Bilder</option>
+          <option value="4">4 Bilder</option>
+        </select>
+
+        <label class="toggle">
+          <input type="checkbox" id="errorlessToggle" />
+          <span>
+            <strong>Hilfe nach einem Fehler</strong><br />
+            Das richtige Bild wird gezeigt und benannt („Hier ist der Schal.“). Das Kind tippt es dann an.
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" id="calmToggle" />
+          <span>
+            <strong>Ruhiger Modus</strong><br />
+            Wenig Animation, immer dieselben kurzen Rückmeldungen.
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" id="genusToggle" />
+          <span>
+            <strong>Artikel-Farben</strong><br />
+            Nach der richtigen Antwort erscheint das Wort mit
+            <span class="genus-der">der</span> /
+            <span class="genus-die">die</span> /
+            <span class="genus-das">das</span> /
+            <span class="genus-pl">die (Mehrzahl)</span> in Farbe.
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" id="housesArticleToggle" />
+          <span>
+            <strong>Artikel-Häuser: Artikel mitsprechen</strong><br />
+            An: Die App sagt „der Schal“, das Kind ordnet nach Gehör zu (leichter).
+            Aus: Die App sagt nur „Schal“, das Kind muss den Artikel wissen.
+          </span>
+        </label>
+
+        <div class="settings-group">
+          <strong>Freirubbeln</strong>
+
+          <label for="scratchBrushSelect">Stiftgröße:</label>
+          <select id="scratchBrushSelect">
+            <option value="klein">Klein</option>
+            <option value="mittel">Mittel</option>
+            <option value="gross">Groß</option>
+          </select>
+
+          <label for="scratchRevealSelect">Bild ganz zeigen ab:</label>
+          <select id="scratchRevealSelect">
+            <option value="0.5">50 % freigerubbelt</option>
+            <option value="0.6">60 % freigerubbelt</option>
+            <option value="0.7">70 % freigerubbelt</option>
+            <option value="0.8">80 % freigerubbelt</option>
+            <option value="0.9">90 % freigerubbelt</option>
+          </select>
+        </div>
+
+        <label class="toggle">
+          <input type="checkbox" id="bundledVoiceToggle" />
+          <span>
+            <strong>Natürliche Stimme (Thorsten)</strong><br />
+            Die Wörter der mitgelieferten Wortfelder spricht eine vorab aufgenommene, natürliche Stimme.
+            Aus: Es spricht immer die Stimme des Geräts.
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" id="recordingsToggle" />
+          <span>
+            <strong>Eigene Sprachaufnahmen</strong><br />
+            Fragen selbst einsprechen. Wo keine Aufnahme da ist, spricht die Computerstimme.
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" id="codeLockToggle" />
+          <span>
+            <strong>Zahlen-Code vor den Einstellungen</strong><br />
+            Wer auf das Zahnrad tippt, muss vier Zahlen eintippen, die als Wörter angezeigt werden.
+            So kommen Kinder nicht versehentlich in die Einstellungen.
+          </span>
+        </label>
+
+        <div class="offline-box">
+          <strong>Ohne Internet nutzen</strong>
+          <p class="hint" id="offlineStatus">Wird geprüft …</p>
+          <button id="offlineButton" class="secondary">Für Offline-Nutzung laden</button>
+        </div>
+            </div>
+
+      <div class="button-row">
+        <button id="settingsContinueButton">Weiter üben</button>
+        <button id="settingsEndButton" class="secondary">Übung beenden</button>
+        <button id="settingsCloseButton">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/words.js?v=15"></script>
+  <script src="js/wordfields.js?v=15"></script>
+  <script src="js/voice.js?v=15"></script>
+  <script src="js/db.js?v=15"></script>
+  <script src="js/speech.js?v=15"></script>
+  <script src="js/celebration.js?v=15"></script>
+  <script src="js/app.js?v=15"></script>
+  <script src="js/session.js?v=15"></script>
+  <script src="js/pick.js?v=15"></script>
+  <script src="js/sort.js?v=15"></script>
+  <script src="js/yesno.js?v=15"></script>
+  <script src="js/memory.js?v=15"></script>
+  <script src="js/naming.js?v=15"></script>
+  <script src="js/scratch.js?v=15"></script>
+  <script src="js/teacher.js?v=15"></script>
+  <script src="js/offline.js?v=15"></script>
 </body>
 </html>

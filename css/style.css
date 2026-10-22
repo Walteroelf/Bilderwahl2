@@ -153,22 +153,102 @@ button:disabled {
   background: var(--success);
 }
 
-.settings-bar {
-  position: fixed;
-  left: 1rem;
-  bottom: 1rem;
-  z-index: 50;
+/* Zahnrad: in Übungen oben rechts, über allem außer den Fenstern */
+.gear-button,
+.gear-inline {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #334155;
+  border: 2px solid #cbd5e1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
-#settingsButton {
-  width: 58px;
-  height: 58px;
-  padding: 0;
-  font-size: 1.6rem;
-  background: #475569;
+.gear-button {
+  position: fixed;
+  top: max(0.7rem, env(safe-area-inset-top));
+  right: max(0.7rem, env(safe-area-inset-right));
+  z-index: 60;
+  width: 52px;
+  height: 52px;
+}
+
+.gear-inline {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+}
+
+.gear-button svg,
+.gear-inline svg {
+  width: 28px;
+  height: 28px;
+}
+
+.modal-head {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+}
+
+.modal-head h2 {
+  margin: 0 0 0.6rem;
+}
+
+/* Zahlen-Code */
+.code-modal {
+  max-width: 420px;
+  text-align: center;
+}
+
+.code-words {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0.4rem 0 0.8rem;
+}
+
+.code-dots {
+  display: flex;
   justify-content: center;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.code-dots span {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid #94a3b8;
+}
+
+.code-dots span.filled {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.keypad button {
+  border-radius: 16px;
+  padding: 0.9rem 0;
+  font-size: 1.4rem;
+}
+
+.keypad button.secondary {
+  font-size: 1rem;
+}
+
+.code-error {
+  min-height: 1.4rem;
+  color: var(--error);
+  font-weight: 700;
 }
 
 .modal-backdrop {
@@ -1345,10 +1425,5 @@ table.stats td {
   button {
     font-size: 1rem;
     padding: 0.9rem 1.1rem;
-  }
-
-  #settingsButton {
-    width: 52px;
-    height: 52px;
   }
 }

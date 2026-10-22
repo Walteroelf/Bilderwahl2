@@ -116,9 +116,9 @@ async function startSession(game, set, words, options) {
   gameContainers().forEach(element => element.classList.toggle("hidden", element !== game.container));
   gameSummary.classList.add("hidden");
 
-  settingsButton.classList.add("hidden");
   nextButton.classList.add("hidden");
   repeatButton.classList.remove("hidden");
+  gearButton.classList.remove("hidden");
   scoreDisplay.classList.add("hidden");
   answerWord.classList.add("hidden");
 
@@ -132,7 +132,6 @@ function nextItem() {
 
   session.mistake = false;
   nextButton.classList.add("hidden");
-  settingsButton.classList.add("hidden");
   answerWord.classList.add("hidden");
 
   if (session.queue.length === 0) {
@@ -204,7 +203,7 @@ function finishSession(text) {
   const words = session.words;
 
   document.getElementById("summaryAgainButton").addEventListener("click", () => game.restart(set, words));
-  document.getElementById("summaryBackButton").addEventListener("click", openSettings);
+  document.getElementById("summaryBackButton").addEventListener("click", backToOverview);
 
   speak(settings.calm ? "Fertig." : "Super, fertig!");
 }
