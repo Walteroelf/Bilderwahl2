@@ -8,7 +8,7 @@
     gespeichert, oder alle auf einmal über "Für Offline-Nutzung laden".
 */
 
-const VERSION = "11";
+const VERSION = "12";
 const APP_CACHE = "bilderwahl-app-" + VERSION;
 const MEDIA_CACHE = "bilderwahl-medien";
 
@@ -32,6 +32,7 @@ const APP_FILES = [
   "js/yesno.js?v=" + VERSION,
   "js/memory.js?v=" + VERSION,
   "js/naming.js?v=" + VERSION,
+  "js/scratch.js?v=" + VERSION,
   "js/offline.js?v=" + VERSION
 ];
 

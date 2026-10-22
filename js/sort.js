@@ -168,7 +168,8 @@ function enableDragging(card) {
     if (sortLocked) return;
 
     event.preventDefault();
-    card.setPointerCapture(event.pointerId);
+    // Kann bei ungewöhnlichen Eingabegeräten fehlschlagen – dann ohne weiter
+    try { card.setPointerCapture(event.pointerId); } catch (error) { /* weiter ohne */ }
 
     sortDrag = {
       card: card,

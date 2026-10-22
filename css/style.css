@@ -985,6 +985,39 @@ button.memory-card:focus-visible {
   cursor: default;
 }
 
+/* Freirubbeln */
+
+.scratch-area {
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  width: min(90vw, 55vh, 520px);
+  aspect-ratio: 1;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.scratch-area img {
+  position: absolute;
+  inset: 6%;
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.scratch-area canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: pointer;
+}
+
 /* Auswertung am Ende einer Übung */
 
 .game-summary {

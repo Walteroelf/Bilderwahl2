@@ -63,7 +63,7 @@ texts.update([
     "Hör noch einmal genau hin.", "Das gesuchte Bild ist ein anderes.", "Noch einmal probieren.",
     "Das war leider nicht das passende Bild.", "Schau noch einmal genau.", "Nicht ganz. Du schaffst das.",
     "Richtig!", "Noch einmal.", "Los geht's.", "Schau mal.", "Das sind mehrere.", "Fertig.", "Super, fertig!",
-    "Was ist das?", "Das gehört hierhin.",
+    "Was ist das?", "Das gehört hierhin.", "Rubbel das Bild frei!",
 ])
 
 # "Nicht ganz. Du schaffst das." wird auch in Teilen gebraucht

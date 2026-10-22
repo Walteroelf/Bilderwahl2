@@ -102,6 +102,8 @@ const exerciseSort = document.getElementById("exerciseSort");
 const exerciseSortNote = document.getElementById("exerciseSortNote");
 const exerciseNaming = document.getElementById("exerciseNaming");
 const exerciseNamingNote = document.getElementById("exerciseNamingNote");
+const exerciseScratch = document.getElementById("exerciseScratch");
+const exerciseScratchNote = document.getElementById("exerciseScratchNote");
 const exerciseBackButton = document.getElementById("exerciseBackButton");
 const newSetButton = document.getElementById("newSetButton");
 const importSetButton = document.getElementById("importSetButton");
@@ -179,6 +181,7 @@ exerciseMemory.addEventListener("click", () => startMemoryGame(exerciseSet, exer
 exerciseHouses.addEventListener("click", () => startHouseGame(exerciseSet, exerciseWords));
 exerciseSort.addEventListener("click", () => startFieldSortGame(exerciseSet, exerciseAllWords, buildFieldBins(exerciseItems)));
 exerciseNaming.addEventListener("click", () => startNamingGame(exerciseSet, exerciseWords));
+exerciseScratch.addEventListener("click", () => startScratchGame(exerciseSet, exerciseWords));
 importSetButton.addEventListener("click", () => importInput.click());
 importInput.addEventListener("change", importSetFromFile);
 
@@ -645,6 +648,10 @@ function showExercise() {
   setExerciseState(exerciseNaming, exerciseNamingNote, withArticle >= 1,
     Math.min(perRound, withArticle) + " Aufgaben" + (canRecordAudio() ? " · mit Aufnahme" : ""),
     "Mindestens 1 Wort mit Artikel nötig.");
+
+  setExerciseState(exerciseScratch, exerciseScratchNote, exerciseWords.length >= 1,
+    Math.min(getRoundLength() || SCRATCH_ROUND, SCRATCH_ROUND, exerciseWords.length) + " Bilder",
+    "Mindestens 1 Wort nötig.");
 
   showScreen(exerciseScreen);
 }

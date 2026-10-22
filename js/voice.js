@@ -1077,6 +1077,7 @@ const VOICE_CLIPS = {
 "Rock": "468d79c2e0",
 "Roller": "71cbf64a36",
 "Rollstuhl": "3bd170506c",
+"Rubbel das Bild frei!": "5be4ca48eb",
 "Rucksack": "6c366b1c12",
 "Rutsche": "9198cc0b3c",
 "Saft": "bdcaead730",

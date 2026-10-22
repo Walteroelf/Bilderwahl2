@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 11</title>
+  <title>Sprachverständnis-App – Version 12</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -12,13 +12,13 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#2563eb" />
 
-  <link rel="stylesheet" href="css/style.css?v=11" />
+  <link rel="stylesheet" href="css/style.css?v=12" />
 </head>
 
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 11</div>
+    <div class="version">Version 12</div>
     <div class="score hidden" id="score"></div>
   </header>
 
@@ -67,6 +67,14 @@
         <button data-rating="richtig" class="rating-good">✓ Richtig gesagt</button>
         <button data-rating="teilweise" class="rating-partial">≈ Teilweise</button>
         <button data-rating="nicht" class="rating-not">✗ Noch nicht</button>
+      </div>
+    </div>
+
+    <!-- Freirubbeln -->
+    <div id="scratchGame" class="game hidden">
+      <div class="scratch-area" id="scratchArea">
+        <img id="scratchImage" alt="" />
+        <canvas id="scratchCanvas"></canvas>
       </div>
     </div>
 
@@ -269,6 +277,11 @@
 
       <h3 class="exercise-group">Sprechen</h3>
       <div class="exercise-list">
+        <button class="exercise-card" id="exerciseScratch">
+          <span class="exercise-title">Freirubbeln</span>
+          <span class="exercise-text">Ein verdecktes Bild mit dem Finger freirubbeln. Zwischendurch fragt die App „Was ist das?“.</span>
+          <span class="exercise-note" id="exerciseScratchNote"></span>
+        </button>
         <button class="exercise-card" id="exerciseNaming">
           <span class="exercise-title">Benennen</span>
           <span class="exercise-text">„Was ist das?“ – das Kind sagt das Wort, die Lehrkraft bewertet. Antwort auf Wunsch aufnehmen.</span>
@@ -344,19 +357,20 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=11"></script>
-  <script src="js/wordfields.js?v=11"></script>
-  <script src="js/voice.js?v=11"></script>
-  <script src="js/db.js?v=11"></script>
-  <script src="js/speech.js?v=11"></script>
-  <script src="js/celebration.js?v=11"></script>
-  <script src="js/app.js?v=11"></script>
-  <script src="js/session.js?v=11"></script>
-  <script src="js/pick.js?v=11"></script>
-  <script src="js/sort.js?v=11"></script>
-  <script src="js/yesno.js?v=11"></script>
-  <script src="js/memory.js?v=11"></script>
-  <script src="js/naming.js?v=11"></script>
-  <script src="js/offline.js?v=11"></script>
+  <script src="js/words.js?v=12"></script>
+  <script src="js/wordfields.js?v=12"></script>
+  <script src="js/voice.js?v=12"></script>
+  <script src="js/db.js?v=12"></script>
+  <script src="js/speech.js?v=12"></script>
+  <script src="js/celebration.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
+  <script src="js/session.js?v=12"></script>
+  <script src="js/pick.js?v=12"></script>
+  <script src="js/sort.js?v=12"></script>
+  <script src="js/yesno.js?v=12"></script>
+  <script src="js/memory.js?v=12"></script>
+  <script src="js/naming.js?v=12"></script>
+  <script src="js/scratch.js?v=12"></script>
+  <script src="js/offline.js?v=12"></script>
 </body>
 </html>
