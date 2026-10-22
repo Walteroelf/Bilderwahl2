@@ -453,10 +453,6 @@ button.recording {
   border-radius: 22px;
 }
 
-.modal.modal-wide {
-  max-width: 1000px;
-  padding-bottom: 0;
-}
 
 .modal h2 {
   margin: 0 0 12px;
@@ -470,25 +466,13 @@ button.recording {
   line-height: 1.45;
 }
 
-.modal-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
 
-.modal-head h2 {
-  margin-bottom: 8px;
-}
 
 .hint {
   color: var(--muted);
   font-size: 17px;
 }
 
-.home-intro {
-  margin-top: 0;
-}
 
 .warning {
   color: var(--hm);
@@ -631,80 +615,83 @@ details.hint summary {
   font-weight: 700;
 }
 
-/* ---------- Startseite: Wortfelder ---------- */
+/* ---------- Startseite: Wortfelder (eigene Seite) ---------- */
 
+.home-page {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--himmel);
+}
+
+.home-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 4px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px));
+}
+
+.home-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin: 6px 0 10px;
+}
+
+.home-title h2 {
+  margin: 0;
+  font-family: var(--anzeige);
+  font-weight: 900;
+  font-size: 26px;
+}
+
+.home-title .hint {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Kompakte Kacheln in einer Zeile: [Haken] [Bild] Name / Wörter */
 .field-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-  margin: 16px 0;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.field-group {
+  grid-column: 1 / -1;
+  margin: 10px 0 0;
+  font-family: var(--anzeige);
+  font-size: 19px;
+  color: var(--muted);
 }
 
 .field-tile {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 4px 6px 4px 4px;
   background: var(--tresen);
-  border: 4px solid var(--holz);
-  border-radius: 20px;
-  box-shadow: 0 5px 0 var(--holz);
+  border: 3px solid var(--holz);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--holz);
 }
 
 .field-tile.selected {
   border-color: var(--markise);
-  box-shadow: 0 5px 0 var(--markise);
-  background: color-mix(in srgb, var(--markise) 8%, var(--tresen));
-}
-
-button.field-open {
-  all: unset;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  padding: 14px 10px 12px;
-  cursor: pointer;
-  text-align: center;
-  border-radius: 16px;
-}
-
-button.field-open:focus-visible {
-  outline: 4px solid var(--senf);
-}
-
-.field-cover {
-  display: block;
-  width: 92px;
-  height: 92px;
-  padding: 6px;
-  border-radius: 14px;
-  background: var(--teller);
-}
-
-.field-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.field-name {
-  font-family: var(--anzeige);
-  font-weight: 900;
-  font-size: 20px;
-  line-height: 1.15;
-}
-
-.field-count {
-  font-size: 15px;
-  color: var(--muted);
+  box-shadow: 0 4px 0 var(--markise);
+  background: color-mix(in srgb, var(--markise) 9%, var(--tresen));
 }
 
 .field-check {
-  position: absolute;
-  top: 6px;
-  right: 6px;
   display: flex;
-  padding: 6px;
+  flex: none;
+  padding: 6px 4px 6px 6px;
   cursor: pointer;
 }
 
@@ -713,19 +700,19 @@ button.field-open:focus-visible {
   -webkit-appearance: none;
   display: grid;
   place-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   margin: 0;
   border: 3px solid var(--holz-hell);
-  border-radius: 9px;
+  border-radius: 8px;
   background: var(--tresen);
   cursor: pointer;
 }
 
 .field-check input::after {
   content: "";
-  width: 9px;
-  height: 16px;
+  width: 8px;
+  height: 15px;
   margin-top: -3px;
   border: solid #fff;
   border-width: 0 4px 4px 0;
@@ -742,6 +729,82 @@ button.field-open:focus-visible {
   transform: rotate(45deg) scale(1);
 }
 
+button.field-open {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 4px 2px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+button.field-open:focus-visible {
+  outline: 4px solid var(--senf);
+}
+
+.field-cover {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--teller);
+}
+
+.field-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.field-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Lange Namen ("Haushalt und Werkzeug") brechen auf zwei Zeilen um */
+.field-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--anzeige);
+  font-weight: 900;
+  font-size: 17px;
+  line-height: 1.15;
+  hyphens: none;
+}
+
+/* Lange Einzelwörter ("Musikinstrumente") etwas kleiner statt mitten im Wort zu trennen */
+.field-name.long-word {
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+.field-count {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.home-footer {
+  margin-top: 18px;
+}
+
+.home-footer .button-row {
+  margin: 0 0 8px;
+}
+
+.home-footer .credit {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+/* Leiste unten mit "Weiter zur Übung" */
 .selection-bar {
   position: sticky;
   bottom: 0;
@@ -749,10 +812,9 @@ button.field-open:focus-visible {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  margin: 16px -22px 0;
-  padding: 14px 22px;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   background: var(--tresen);
-  border-top: 3px solid var(--linie);
+  border-top: 4px solid var(--holz);
 }
 
 .selection-bar span {
@@ -788,47 +850,49 @@ button.field-open:focus-visible {
 
 /* Übung auswählen */
 .exercise-group {
-  margin: 20px 0 0;
+  margin: 12px 0 0;
   font-family: var(--anzeige);
-  font-size: 20px;
+  font-size: 17px;
   color: var(--muted);
 }
 
 .exercise-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 14px;
-  margin: 10px 0;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin: 6px 0;
 }
 
 button.exercise-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
-  padding: 16px;
+  gap: 2px;
+  min-height: 0;
+  padding: 10px 12px;
   text-align: left;
   font-weight: 400;
   background: var(--tresen);
   color: var(--holz);
-  border-radius: 20px;
-  box-shadow: 0 5px 0 var(--holz);
+  border-width: 3px;
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--holz);
 }
 
 .exercise-title {
   font-family: var(--anzeige);
   font-weight: 900;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1.15;
 }
 
 .exercise-text {
-  font-size: 16px;
-  line-height: 1.4;
+  font-size: 15px;
+  line-height: 1.3;
 }
 
 .exercise-note {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--muted);
 }
@@ -1445,6 +1509,146 @@ table.stats td {
   font-weight: 700;
 }
 
+/* ---------- Vorhang beim Öffnen der App ---------- */
+
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Zwei Samthälften mit Falten: dunkle und helle Streifen im Wechsel */
+.curtain-half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(0, 0, 0, 0.42) 0,
+      rgba(0, 0, 0, 0.12) 3%,
+      rgba(255, 255, 255, 0.16) 6.5%,
+      rgba(255, 255, 255, 0.04) 8.5%,
+      rgba(0, 0, 0, 0.18) 11%,
+      rgba(0, 0, 0, 0.42) 14%),
+    linear-gradient(180deg, #c81b2e 0%, #a41222 50%, #6a0813 100%);
+  transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.curtain-left {
+  left: 0;
+  box-shadow: inset -24px 0 30px rgba(0, 0, 0, 0.35);
+}
+
+.curtain-right {
+  right: 0;
+  box-shadow: inset 24px 0 30px rgba(0, 0, 0, 0.35);
+}
+
+/* Querbehang oben: Stoffbahn mit goldener Borte und geschwungenen Bögen */
+.curtain-valance {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(64px + env(safe-area-inset-top, 0px));
+  background: linear-gradient(180deg, #7a0a17, #94101f 70%, #7a0a17);
+  border-bottom: 5px solid #e0a72e;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35));
+  transition: transform 0.6s ease 0.45s;
+}
+
+/* Bögen unter der Borte, wie bei einem Theatervorhang */
+.curtain-valance::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 26px;
+  margin-top: 5px;
+  background:
+    radial-gradient(ellipse 60px 26px at 60px 0, #94101f 98%, transparent 100%) 0 0 / 120px 26px repeat-x;
+}
+
+.curtain-valance::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 31px;
+  background:
+    radial-gradient(ellipse 63px 31px at 60px 0, #e0a72e 98%, transparent 100%) 0 0 / 120px 31px repeat-x;
+}
+
+.curtain-sign {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  padding: 6px 30px;
+  transform: translate(-50%, -50%);
+  font-family: var(--anzeige);
+  font-weight: 900;
+  font-size: clamp(36px, 8vw, 64px);
+  color: #6b3f22;
+  background: #ffffff;
+  border: 5px solid #6b3f22;
+  border-radius: 18px;
+  box-shadow: 0 6px 0 #6b3f22, 0 18px 40px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.curtain.open .curtain-left {
+  transform: translateX(-100%);
+}
+
+.curtain.open .curtain-right {
+  transform: translateX(100%);
+}
+
+.curtain.open .curtain-valance {
+  transform: translateY(-160%);
+}
+
+.curtain.open .curtain-sign {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+/* Angetippt: schneller öffnen */
+.curtain.fast .curtain-half {
+  transition-duration: 0.4s;
+}
+
+.curtain.fast .curtain-valance {
+  transition-duration: 0.3s;
+  transition-delay: 0s;
+}
+
+/* Bewegung reduzieren: nur ausblenden */
+.curtain.fade {
+  transition: opacity 0.35s ease;
+}
+
+.curtain.fade .curtain-half,
+.curtain.fade .curtain-valance,
+.curtain.fade .curtain-sign {
+  transition: none;
+  transform: none;
+}
+
+.curtain.fade.open {
+  opacity: 0;
+}
+
+.curtain.fade.open .curtain-sign {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
 /* ---------- Feier-Animationen: eigene Ebene über allem, fängt keine Berührungen ab ---------- */
 
 .celebration-layer {
@@ -1560,11 +1764,6 @@ table.stats td {
     font-size: 25px;
   }
 
-  .selection-bar {
-    margin: 14px -16px 0;
-    padding: 12px 16px;
-  }
-
   .selection-bar span {
     flex-basis: 100%;
   }
@@ -1575,18 +1774,49 @@ table.stats td {
     font-size: 16px;
   }
 
+  /* Handy: einspaltige Liste, damit die Namen ganz lesbar bleiben */
   .field-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .field-check {
+    padding: 4px;
+  }
+
+  .field-check input {
+    width: 26px;
+    height: 26px;
   }
 
   .field-cover {
-    width: 68px;
-    height: 68px;
+    width: 38px;
+    height: 38px;
   }
 
   .field-name {
     font-size: 17px;
+  }
+
+  .field-name.long-word {
+    font-size: 17px;
+  }
+
+  .field-count {
+    font-size: 13px;
+  }
+
+  .exercise-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .exercise-title {
+    font-size: 17px;
+  }
+
+  .exercise-text {
+    font-size: 13px;
   }
 
   .word-row {

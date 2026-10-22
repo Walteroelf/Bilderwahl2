@@ -242,9 +242,12 @@ function updateSettingsFromForm() {
 }
 
 function showScreen(screen) {
-  [homeScreen, fieldScreen, exerciseScreen, editorScreen, statsScreen].forEach(element => {
+  [fieldScreen, exerciseScreen, editorScreen, statsScreen].forEach(element => {
     element.classList.toggle("hidden", element !== screen);
   });
+
+  // Die Übersicht ist die Grundseite: Fenster liegen darüber, nur in einer Übung ist sie weg
+  homeScreen.classList.toggle("hidden", screen === null);
 }
 
 /* ---------- Startseite: Übersicht der Wortfelder ---------- */
@@ -391,7 +394,18 @@ async function renderHome() {
 
   fieldGrid.innerHTML = "";
 
+  let ownHeadingShown = false;
+
   homeData.forEach(({ set, words }) => {
+    // Eigene Wortfelder stehen nach den mitgelieferten unter einer eigenen Überschrift
+    if (!set.libraryId && !ownHeadingShown) {
+      ownHeadingShown = true;
+      const heading = document.createElement("h3");
+      heading.className = "field-group";
+      heading.textContent = "Eigene Wortfelder";
+      fieldGrid.appendChild(heading);
+    }
+
     const tile = document.createElement("div");
     tile.className = "field-tile" + (selectedIds.has(set.id) ? " selected" : "");
 
@@ -414,14 +428,19 @@ async function renderHome() {
     const name = document.createElement("span");
     name.className = "field-name";
     name.textContent = set.name;
+    if (set.name.split(" ").some(part => part.length > 12)) name.classList.add("long-word");
 
     const count = document.createElement("span");
     count.className = "field-count";
-    count.textContent = words.length + " Wörter" + (set.libraryId ? "" : " · eigenes");
+    count.textContent = words.length + " Wörter";
+
+    const text = document.createElement("span");
+    text.className = "field-text";
+    text.appendChild(name);
+    text.appendChild(count);
 
     open.appendChild(cover);
-    open.appendChild(name);
-    open.appendChild(count);
+    open.appendChild(text);
     open.addEventListener("click", () => showField(set.id));
 
     const check = document.createElement("label");
@@ -438,8 +457,9 @@ async function renderHome() {
 
     check.appendChild(box);
 
-    tile.appendChild(open);
+    // Haken links, daneben Bild und Name
     tile.appendChild(check);
+    tile.appendChild(open);
     fieldGrid.appendChild(tile);
   });
 

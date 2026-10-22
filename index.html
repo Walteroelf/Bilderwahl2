@@ -12,10 +12,19 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#3d7ab8" />
 
-  <link rel="stylesheet" href="css/style.css?v=17" />
+  <link rel="stylesheet" href="css/style.css?v=18" />
 </head>
 
 <body>
+  <!-- Vorhang beim Öffnen der App (js/curtain.js) -->
+  <div class="curtain" id="curtain" aria-hidden="true">
+    <div class="curtain-half curtain-left"></div>
+    <div class="curtain-half curtain-right"></div>
+    <div class="curtain-valance"></div>
+    <div class="curtain-sign">Bilderwahl</div>
+  </div>
+  <script src="js/curtain.js?v=18"></script>
+
   <header>
     <!-- Markise wie im Kirmes-Kiosk, in ruhigem Blau -->
     <div class="markise" aria-hidden="true"></div>
@@ -117,49 +126,54 @@
     <button class="hidden" id="nextButton">Weiter</button>
   </div>
 
-  <!-- Startseite: Übersicht der Wortfelder -->
-  <div class="modal-backdrop" id="homeScreen">
-    <div class="modal modal-wide">
-      <div class="modal-head">
-        <h2>Wortfelder</h2>
-        <button class="gear-inline" id="homeGearButton" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen">
+  <!-- Startseite: Übersicht der Wortfelder (eigene Seite, die Fenster liegen darüber) -->
+  <div class="home-page" id="homeScreen">
+    <header>
+      <div class="markise" aria-hidden="true"></div>
+      <div class="kopf">
+        <h1 class="schild">Bilderwahl</h1>
+        <span class="platz"></span>
+        <button class="gear-button" id="homeGearButton" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" fill-opacity=".15"/></svg>
         </button>
       </div>
-      <p class="hint home-intro">
-        <strong>Haken setzen</strong>, um ein oder mehrere Wortfelder zu üben.
-        <strong>Wortfeld antippen</strong>, um es anzusehen, zu bearbeiten oder den Lernstand zu sehen.
-      </p>
+    </header>
+
+    <div class="home-content">
+      <div class="home-title">
+        <h2>Wortfelder</h2>
+        <p class="hint">Ankreuzen, was geübt werden soll – antippen für Details.</p>
+      </div>
 
       <div id="setupInfo" class="hint hidden"></div>
 
       <div id="fieldGrid" class="field-grid"></div>
 
-      <div class="button-row">
-        <button id="newSetButton" class="secondary">+ Eigenes Wortfeld</button>
-        <button id="importSetButton" class="secondary">Wortfeld importieren</button>
-        <button id="restoreFieldsButton" class="secondary hidden">Gelöschte Wortfelder wiederherstellen</button>
-        <input type="file" id="importInput" accept=".json,application/json" class="hidden" />
-      </div>
+      <div class="home-footer">
+        <div class="button-row">
+          <button id="newSetButton" class="secondary small">+ Eigenes Wortfeld</button>
+          <button id="importSetButton" class="secondary small">Wortfeld importieren</button>
+          <button id="restoreFieldsButton" class="secondary small hidden">Gelöschte Wortfelder wiederherstellen</button>
+          <input type="file" id="importInput" accept=".json,application/json" class="hidden" />
+        </div>
 
-
-      <p class="hint">
-        Eigene Wortfelder, Änderungen und der Lernstand werden nur auf diesem Gerät in diesem Browser gespeichert.
-        Am besten die App über „Teilen → Zum Home-Bildschirm“ als App ablegen
-        und eigene Wortfelder ab und zu exportieren (Sicherung, Weitergeben an Kolleginnen und Kollegen).
-      </p>
-
+        <p class="credit">
+          Eigene Wortfelder und der Lernstand bleiben nur auf diesem Gerät gespeichert –
+          am besten die App über „Teilen → Zum Home-Bildschirm“ ablegen.
+        </p>
       <p class="credit" id="homeCredit"></p>
-      <p class="credit">
-        Stimme: <a href="https://www.thorsten-voice.de" target="_blank" rel="noopener">Thorsten-Voice</a>
-        von Thorsten Müller (CC0), erzeugt mit <a href="https://github.com/OHF-Voice/piper1-gpl" target="_blank" rel="noopener">Piper</a>.
-      </p>
+        <p class="credit">
+          Stimme: <a href="https://www.thorsten-voice.de" target="_blank" rel="noopener">Thorsten-Voice</a>
+          von Thorsten Müller (CC0), erzeugt mit <a href="https://github.com/OHF-Voice/piper1-gpl" target="_blank" rel="noopener">Piper</a>.
+        </p>
 
-      <div class="selection-bar" id="selectionBar">
-        <span id="selectionInfo">Noch kein Wortfeld ausgewählt</span>
-        <button id="clearSelectionButton" class="secondary small hidden">Auswahl aufheben</button>
-        <button id="toExerciseButton" disabled>Weiter zur Übung</button>
       </div>
+    </div>
+
+    <div class="selection-bar" id="selectionBar">
+      <span id="selectionInfo">Noch kein Wortfeld ausgewählt</span>
+      <button id="clearSelectionButton" class="secondary small hidden">Auswahl aufheben</button>
+      <button id="toExerciseButton" disabled>Weiter zur Übung</button>
     </div>
   </div>
 
@@ -185,17 +199,17 @@
       <div class="exercise-list">
         <button class="exercise-card" id="exercisePick">
           <span class="exercise-title">Bild finden</span>
-          <span class="exercise-text">„Wo ist der Schal?“ – das Kind tippt auf das passende Bild.</span>
+          <span class="exercise-text">„Wo ist der Schal?“ – passendes Bild antippen.</span>
           <span class="exercise-note" id="exercisePickNote"></span>
         </button>
         <button class="exercise-card" id="exerciseYesNo">
           <span class="exercise-title">Ja oder Nein</span>
-          <span class="exercise-text">Ein Bild und die Frage „Ist das der Schal?“ – das Kind tippt Ja oder Nein.</span>
+          <span class="exercise-text">„Ist das der Schal?“ – Ja oder Nein.</span>
           <span class="exercise-note" id="exerciseYesNoNote"></span>
         </button>
         <button class="exercise-card" id="exerciseMemory">
           <span class="exercise-title">Memory</span>
-          <span class="exercise-text">Bildpaare finden. Jede Karte nennt beim Aufdecken ihr Wort.</span>
+          <span class="exercise-text">Bildpaare finden, jede Karte spricht.</span>
           <span class="exercise-note" id="exerciseMemoryNote"></span>
         </button>
       </div>
@@ -204,12 +218,12 @@
       <div class="exercise-list">
         <button class="exercise-card" id="exerciseHouses">
           <span class="exercise-title">Artikel-Häuser</span>
-          <span class="exercise-text">Jedes Bild in das der-, die-, das- oder Mehrzahl-Haus ziehen.</span>
+          <span class="exercise-text">Bilder ins der-, die-, das- oder Mehrzahl-Haus.</span>
           <span class="exercise-note" id="exerciseHousesNote"></span>
         </button>
         <button class="exercise-card" id="exerciseSort">
           <span class="exercise-title">Sortieren</span>
-          <span class="exercise-text">Jedes Bild dem passenden Wortfeld zuordnen, z. B. Obst oder Tiere.</span>
+          <span class="exercise-text">Bilder den Wortfeldern zuordnen.</span>
           <span class="exercise-note" id="exerciseSortNote"></span>
         </button>
       </div>
@@ -218,12 +232,12 @@
       <div class="exercise-list">
         <button class="exercise-card" id="exerciseScratch">
           <span class="exercise-title">Freirubbeln</span>
-          <span class="exercise-text">Ein verdecktes Bild mit dem Finger freirubbeln. Zwischendurch fragt die App „Was ist das?“.</span>
+          <span class="exercise-text">Verdecktes Bild freirubbeln und benennen.</span>
           <span class="exercise-note" id="exerciseScratchNote"></span>
         </button>
         <button class="exercise-card" id="exerciseNaming">
           <span class="exercise-title">Benennen</span>
-          <span class="exercise-text">„Was ist das?“ – das Kind sagt das Wort, die Lehrkraft bewertet. Antwort auf Wunsch aufnehmen.</span>
+          <span class="exercise-text">„Was ist das?“ – die Lehrkraft bewertet.</span>
           <span class="exercise-note" id="exerciseNamingNote"></span>
         </button>
       </div>
@@ -438,7 +452,7 @@
         </div>
             </div>
 
-      <p class="credit">Bilderwahl · <span class="version">Version 17</span></p>
+      <p class="credit">Bilderwahl · <span class="version">Version 18</span></p>
 
       <div class="button-row">
         <button id="settingsContinueButton">Weiter üben</button>
@@ -448,21 +462,21 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=17"></script>
-  <script src="js/wordfields.js?v=17"></script>
-  <script src="js/voice.js?v=17"></script>
-  <script src="js/db.js?v=17"></script>
-  <script src="js/speech.js?v=17"></script>
-  <script src="js/celebration.js?v=17"></script>
-  <script src="js/app.js?v=17"></script>
-  <script src="js/session.js?v=17"></script>
-  <script src="js/pick.js?v=17"></script>
-  <script src="js/sort.js?v=17"></script>
-  <script src="js/yesno.js?v=17"></script>
-  <script src="js/memory.js?v=17"></script>
-  <script src="js/naming.js?v=17"></script>
-  <script src="js/scratch.js?v=17"></script>
-  <script src="js/teacher.js?v=17"></script>
-  <script src="js/offline.js?v=17"></script>
+  <script src="js/words.js?v=18"></script>
+  <script src="js/wordfields.js?v=18"></script>
+  <script src="js/voice.js?v=18"></script>
+  <script src="js/db.js?v=18"></script>
+  <script src="js/speech.js?v=18"></script>
+  <script src="js/celebration.js?v=18"></script>
+  <script src="js/app.js?v=18"></script>
+  <script src="js/session.js?v=18"></script>
+  <script src="js/pick.js?v=18"></script>
+  <script src="js/sort.js?v=18"></script>
+  <script src="js/yesno.js?v=18"></script>
+  <script src="js/memory.js?v=18"></script>
+  <script src="js/naming.js?v=18"></script>
+  <script src="js/scratch.js?v=18"></script>
+  <script src="js/teacher.js?v=18"></script>
+  <script src="js/offline.js?v=18"></script>
 </body>
 </html>

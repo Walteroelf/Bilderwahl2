@@ -8,7 +8,7 @@
     gespeichert, oder alle auf einmal über "Für Offline-Nutzung laden".
 */
 
-const VERSION = "17";
+const VERSION = "18";
 const APP_CACHE = "bilderwahl-app-" + VERSION;
 const MEDIA_CACHE = "bilderwahl-medien";
 
@@ -22,6 +22,7 @@ const APP_FILES = [
   "schriften/andika-700.woff2",
   "schriften/grandstander.woff2",
   "css/style.css?v=" + VERSION,
+  "js/curtain.js?v=" + VERSION,
   "js/words.js?v=" + VERSION,
   "js/wordfields.js?v=" + VERSION,
   "js/voice.js?v=" + VERSION,
