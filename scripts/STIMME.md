@@ -20,3 +20,9 @@ Für ein anderes Sprechtempo vorher den Ordner `audio/thorsten/` leeren.
 
 Stimme: Thorsten-Voice von Thorsten Müller (Datensatz CC0, https://www.thorsten-voice.de),
 Modell `de_DE-thorsten-high` von Piper (https://github.com/OHF-Voice/piper1-gpl).
+
+## Aussprache korrigieren
+
+Spricht die Stimme ein Wort falsch aus, trägt man es mit Lautschrift in
+`scripts/aussprache.json` ein und erzeugt neu. Nur die betroffenen Sätze
+werden neu erzeugt (mit neuem Dateinamen).

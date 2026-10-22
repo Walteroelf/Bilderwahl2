@@ -21,6 +21,21 @@ espeak_dir = os.environ.get("ESPEAK_DATA_DIR")
 src = open(os.path.join(app, "js/wordfields.js"), encoding="utf8").read()
 words = re.findall(r'\{ noun: "([^"]+)", form: "(der|die|das|pl)", picto: \d+ \}', src)
 
+# Korrigierte Aussprache einzelner Wörter (Lautschrift), siehe scripts/aussprache.json
+pronunciations = {
+    word: phonemes
+    for word, phonemes in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "aussprache.json"), encoding="utf8")).items()
+    if not word.startswith("_")
+}
+
+def respell(text):
+    # Satzzeichen direkt nach dem Wort gehört mit in die Lautschrift,
+    # sonst gehen Punkt und Frage-Betonung verloren
+    for word, phonemes in pronunciations.items():
+        text = re.sub(r"(?<![\w-])" + re.escape(word) + r"(?![\w-])([.!?,]?)",
+                      lambda m: "[[ " + phonemes + m.group(1) + " ]]", text)
+    return text
+
 def key(text):
     # muss zu voiceKey() in js/speech.js passen
     return re.sub(r"\s+", " ", text).strip().rstrip(".").strip()
@@ -62,14 +77,17 @@ clips = {}
 tmp = tempfile.mkdtemp()
 for i, text in enumerate(sorted(texts)):
     k = key(text)
-    name = hashlib.sha1(k.encode("utf8")).hexdigest()[:10]
+    spoken = respell(text)
+    # Korrigierte Sätze bekommen einen anderen Dateinamen, damit Browser
+    # nicht die alte Aufnahme aus dem Zwischenspeicher abspielen
+    name = hashlib.sha1((k if spoken == text else k + "|" + spoken).encode("utf8")).hexdigest()[:10]
     clips[k] = name
     target = os.path.join(out_dir, name + ".m4a")
     if os.path.exists(target):
         continue
     wav = os.path.join(tmp, name + ".wav")
     with wave.open(wav, "wb") as w:
-        voice.synthesize_wav(text, w, syn_config=config)
+        voice.synthesize_wav(spoken, w, syn_config=config)
     subprocess.run(["afconvert", "-f", "m4af", "-d", "aac", "-b", "32000", "-c", "1", wav, target], check=True)
     os.remove(wav)
     if i % 100 == 0:
