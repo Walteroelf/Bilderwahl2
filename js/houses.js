@@ -1,10 +1,10 @@
 /*
   Aufgabenformat "Artikel-Häuser":
-  Ein Bild nach dem anderen wird in das der-, die- oder das-Haus gezogen
-  (oder das Haus wird angetippt). Wörter in der Mehrzahl werden ausgelassen.
+  Ein Bild nach dem anderen wird in das der-, die-, das- oder Mehrzahl-Haus
+  gezogen (oder das Haus wird angetippt).
 */
 
-const HOUSE_FORMS = ["der", "die", "das"];
+const HOUSE_FORMS = ["der", "die", "das", "pl"];
 
 const houseGame = document.getElementById("houseGame");
 const houseStage = document.getElementById("houseStage");
@@ -70,10 +70,12 @@ function stopHouseGame() {
 
 function renderHouses() {
   houseRow.innerHTML = HOUSE_FORMS.map(form =>
-    "<button class=\"house house-" + form + "\" data-form=\"" + form + "\" aria-label=\"" + form + "-Haus\">" +
+    "<button class=\"house house-" + form + "\" data-form=\"" + form + "\" aria-label=\"" +
+    (form === "pl" ? "Mehrzahl" : form) + "-Haus\">" +
     "<span class=\"house-roof\"></span>" +
     "<span class=\"house-body\">" +
-    "<span class=\"house-label\">" + form + "</span>" +
+    "<span class=\"house-label\">" + (form === "pl" ? "die" : form) + "</span>" +
+    (form === "pl" ? "<span class=\"house-sublabel\">Mehrzahl</span>" : "") +
     "<span class=\"house-items\"></span>" +
     "</span>" +
     "</button>"
@@ -120,7 +122,7 @@ function nextHouseWord() {
 
   instruction.textContent = settings.housesSayArticle
     ? "In welches Haus gehört das Bild?"
-    : "Der, die oder das?";
+    : "Der, die, das – oder Mehrzahl?";
 
   setTimeout(speakHouseWord, 400);
 }
@@ -250,9 +252,13 @@ function answerHouse(form) {
   if (settings.errorless) {
     // Hilfe: richtiges Haus zeigen und das Wort mit Artikel vorsprechen
     getHouse(houseCurrent.form).classList.add("hint");
-    instruction.innerHTML = "Es heißt <span class=\"genus-" + houseCurrent.form + "\">" +
+
+    // Bei der Mehrzahl erklären, warum es nicht das rote die-Haus ist
+    const intro = houseCurrent.form === "pl" ? "Das sind mehrere. Es heißt " : "Es heißt ";
+
+    instruction.innerHTML = escapeHtml(intro) + "<span class=\"genus-" + houseCurrent.form + "\">" +
       escapeHtml(getDisplayName(houseCurrent)) + "</span>.";
-    speak("Es heißt " + getDisplayName(houseCurrent) + ".");
+    speak(intro + getDisplayName(houseCurrent) + ".");
   } else {
     instruction.textContent = settings.calm ? "Noch einmal." : getRandomItem(wrongMessages);
     speak(instruction.textContent, () => {
