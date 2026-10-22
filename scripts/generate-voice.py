@@ -49,12 +49,13 @@ for noun, form in words:
         ("Wo sind " if plural else "Wo ist ") + name + "?",
         ("Das sind " if plural else "Das ist ") + name + ".",
         ("Hier sind " if plural else "Hier ist ") + name + ".",
+        ("Sind das " if plural else "Ist das ") + name + "?",
         "Es heißt " + name + ".",
         name,
         noun,
     ])
 
-# feste Sätze aus js/app.js und js/houses.js
+# feste Sätze aus js/app.js, js/session.js und den Übungen (js/pick.js, js/sort.js …)
 texts.update([
     "Genau richtig!", "Super gemacht!", "Prima, das stimmt!", "Sehr gut gehört!", "Klasse, richtig!",
     "Toll gemacht!", "Ja, das ist richtig!", "Wunderbar!", "Richtig erkannt!", "Fantastisch!",
@@ -62,6 +63,7 @@ texts.update([
     "Hör noch einmal genau hin.", "Das gesuchte Bild ist ein anderes.", "Noch einmal probieren.",
     "Das war leider nicht das passende Bild.", "Schau noch einmal genau.", "Nicht ganz. Du schaffst das.",
     "Richtig!", "Noch einmal.", "Los geht's.", "Schau mal.", "Das sind mehrere.", "Fertig.", "Super, fertig!",
+    "Was ist das?", "Das gehört hierhin.",
 ])
 
 # "Nicht ganz. Du schaffst das." wird auch in Teilen gebraucht

@@ -41,6 +41,7 @@ const SETTINGS_KEY = "bilderwahl-einstellungen";
 
 const defaultSettings = {
   numberOfChoices: 2,
+  roundLength: 10,
   errorless: true,
   calm: false,
   genusColors: true,
@@ -91,14 +92,23 @@ const fieldBackButton = document.getElementById("fieldBackButton");
 const exerciseInfo = document.getElementById("exerciseInfo");
 const exercisePick = document.getElementById("exercisePick");
 const exercisePickNote = document.getElementById("exercisePickNote");
+const exerciseYesNo = document.getElementById("exerciseYesNo");
+const exerciseYesNoNote = document.getElementById("exerciseYesNoNote");
+const exerciseMemory = document.getElementById("exerciseMemory");
+const exerciseMemoryNote = document.getElementById("exerciseMemoryNote");
 const exerciseHouses = document.getElementById("exerciseHouses");
 const exerciseHousesNote = document.getElementById("exerciseHousesNote");
+const exerciseSort = document.getElementById("exerciseSort");
+const exerciseSortNote = document.getElementById("exerciseSortNote");
+const exerciseNaming = document.getElementById("exerciseNaming");
+const exerciseNamingNote = document.getElementById("exerciseNamingNote");
 const exerciseBackButton = document.getElementById("exerciseBackButton");
 const newSetButton = document.getElementById("newSetButton");
 const importSetButton = document.getElementById("importSetButton");
 const importInput = document.getElementById("importInput");
 
 const imageCountSelect = document.getElementById("imageCountSelect");
+const roundLengthSelect = document.getElementById("roundLengthSelect");
 const errorlessToggle = document.getElementById("errorlessToggle");
 const calmToggle = document.getElementById("calmToggle");
 const genusToggle = document.getElementById("genusToggle");
@@ -121,8 +131,6 @@ const statsResetButton = document.getElementById("statsResetButton");
 
 const instruction = document.getElementById("instruction");
 const answerWord = document.getElementById("answerWord");
-const pickGame = document.getElementById("pickGame");
-const imageGrid = document.getElementById("imageGrid");
 const scoreDisplay = document.getElementById("score");
 
 const repeatButton = document.getElementById("repeatButton");
@@ -140,18 +148,6 @@ let activeRecorder = null;
 let statsSet = null;
 let statsWords = [];
 
-// Spiel: "pick" = Bild finden, "houses" = Artikel-Häuser
-let gameMode = "pick";
-let images = [];
-let currentChoices = [];
-let correctImage = null;
-let answered = false;
-let numberOfChoices = 2;
-let targetQueue = [];
-let lastTarget = null;
-let roundsPlayed = 0;
-let correctOnFirstTry = 0;
-let mistakeInRound = false;
 
 /* ---------- Start ---------- */
 
@@ -163,6 +159,7 @@ requestPersistentStorage();
 document.addEventListener("DOMContentLoaded", showHome);
 
 imageCountSelect.addEventListener("change", updateSettingsFromForm);
+roundLengthSelect.addEventListener("change", updateSettingsFromForm);
 errorlessToggle.addEventListener("change", updateSettingsFromForm);
 calmToggle.addEventListener("change", updateSettingsFromForm);
 genusToggle.addEventListener("change", updateSettingsFromForm);
@@ -176,8 +173,12 @@ clearSelectionButton.addEventListener("click", clearSelection);
 toExerciseButton.addEventListener("click", showExercise);
 fieldBackButton.addEventListener("click", showHome);
 exerciseBackButton.addEventListener("click", showHome);
-exercisePick.addEventListener("click", () => startGame(exerciseSet, exerciseWords));
+exercisePick.addEventListener("click", () => startPickGame(exerciseSet, exerciseWords));
+exerciseYesNo.addEventListener("click", () => startYesNoGame(exerciseSet, exerciseWords));
+exerciseMemory.addEventListener("click", () => startMemoryGame(exerciseSet, exerciseWords));
 exerciseHouses.addEventListener("click", () => startHouseGame(exerciseSet, exerciseWords));
+exerciseSort.addEventListener("click", () => startFieldSortGame(exerciseSet, exerciseAllWords, buildFieldBins(exerciseItems)));
+exerciseNaming.addEventListener("click", () => startNamingGame(exerciseSet, exerciseWords));
 importSetButton.addEventListener("click", () => importInput.click());
 importInput.addEventListener("change", importSetFromFile);
 
@@ -191,17 +192,14 @@ statsBackButton.addEventListener("click", () => showField(statsSet.id));
 statsResetButton.addEventListener("click", resetStatsOfSet);
 
 repeatButton.addEventListener("click", () => {
-  if (gameMode === "houses") {
-    speakHouseWord();
-  } else {
-    speakCurrentWord();
-  }
+  if (session.game) session.game.repeat();
 });
-nextButton.addEventListener("click", nextRound);
+nextButton.addEventListener("click", () => nextItem());
 settingsButton.addEventListener("click", openSettings);
 
 function applySettingsToForm() {
   imageCountSelect.value = String(settings.numberOfChoices);
+  roundLengthSelect.value = String(settings.roundLength);
   errorlessToggle.checked = settings.errorless;
   calmToggle.checked = settings.calm;
   genusToggle.checked = settings.genusColors;
@@ -214,6 +212,7 @@ function applySettingsToForm() {
 function updateSettingsFromForm() {
   settings = {
     numberOfChoices: Number(imageCountSelect.value),
+    roundLength: Number(roundLengthSelect.value),
     errorless: errorlessToggle.checked,
     calm: calmToggle.checked,
     genusColors: genusToggle.checked,
@@ -596,34 +595,56 @@ async function confirmDeleteSet(set) {
 
 let exerciseSet = null;
 let exerciseWords = [];
+let exerciseAllWords = [];
+let exerciseItems = [];
+
+function setExerciseState(button, note, available, text, reason) {
+  button.disabled = !available;
+  note.textContent = available ? text : reason;
+}
 
 function showExercise() {
-  const items = getSelectedData().length > 0
-    ? getSelectedData()
-    : [];
+  const items = getSelectedData();
 
   if (items.length === 0) {
     showHome();
     return;
   }
 
+  exerciseItems = items;
   exerciseWords = combineWords(items);
+  exerciseAllWords = items.flatMap(item => item.words);
   exerciseSet = { id: "auswahl", name: items.map(item => item.set.name).join(", ") };
 
   exerciseInfo.textContent = exerciseSet.name + " · " + exerciseWords.length + " Wörter";
 
   const withArticle = exerciseWords.filter(word => word.form).length;
   const houseCount = getHouseWords(exerciseWords).length;
+  const perRound = getRoundLength() || withArticle;
 
-  exercisePick.disabled = withArticle < settings.numberOfChoices;
-  exercisePickNote.textContent = exercisePick.disabled
-    ? "Mindestens " + settings.numberOfChoices + " Wörter mit Artikel nötig."
-    : withArticle + " Wörter · " + settings.numberOfChoices + " Bilder zur Auswahl";
+  setExerciseState(exercisePick, exercisePickNote, withArticle >= settings.numberOfChoices,
+    Math.min(perRound, withArticle) + " Aufgaben · " + settings.numberOfChoices + " Bilder zur Auswahl",
+    "Mindestens " + settings.numberOfChoices + " Wörter mit Artikel nötig.");
 
-  exerciseHouses.disabled = houseCount < 2;
-  exerciseHousesNote.textContent = exerciseHouses.disabled
-    ? "Mindestens 2 Wörter mit Artikel nötig."
-    : houseCount + " Bilder zum Einsortieren";
+  setExerciseState(exerciseYesNo, exerciseYesNoNote, withArticle >= 2,
+    Math.min(perRound, withArticle) + " Aufgaben",
+    "Mindestens 2 Wörter mit Artikel nötig.");
+
+  setExerciseState(exerciseMemory, exerciseMemoryNote, exerciseWords.length >= 3,
+    Math.min(MEMORY_PAIRS, exerciseWords.length) + " Paare",
+    "Mindestens 3 Wörter nötig.");
+
+  setExerciseState(exerciseHouses, exerciseHousesNote, houseCount >= 2,
+    Math.min(getRoundLength() || houseCount, houseCount) + " Bilder zum Einsortieren",
+    "Mindestens 2 Wörter mit Artikel nötig.");
+
+  setExerciseState(exerciseSort, exerciseSortNote, items.length >= 2 && items.length <= 4,
+    items.length + " Häuser: " + items.map(item => item.set.name).join(", "),
+    items.length < 2 ? "Dafür 2 bis 4 Wortfelder auswählen." : "Höchstens 4 Wortfelder auswählen.");
+
+  setExerciseState(exerciseNaming, exerciseNamingNote, withArticle >= 1,
+    Math.min(perRound, withArticle) + " Aufgaben" + (canRecordAudio() ? " · mit Aufnahme" : ""),
+    "Mindestens 1 Wort mit Artikel nötig.");
 
   showScreen(exerciseScreen);
 }
@@ -1027,20 +1048,23 @@ async function showStats(set, words) {
     const stateClass = state === "sicher" ? "state-sure" : state === "neu" ? "state-new" : "state-practice";
 
     return "<td>" + (entry ? entry.firstTry : 0) + " von " + (entry ? entry.seen : 0) +
-      " <span class=\"state " + stateClass + "\">" + state + "</span></td>";
+      " <span class=\"state " + stateClass + "\">" + state + "</span>" +
+      (entry && entry.box ? "<br /><span class=\"hint\">Fach " + entry.box + " · " + formatDue(entry.due) + "</span>" : "") +
+      "</td>";
   };
 
   const rows = words.map(word => {
     return "<tr>" +
       "<td>" + escapeHtml(getDisplayName(word)) + "</td>" +
-      cell(stats[word.id]) +
-      (HOUSE_FORMS.includes(word.form) ? cell(stats["artikel:" + word.id]) : "<td class=\"hint\">–</td>") +
+      STAT_EXERCISES.map(exercise =>
+        word.form ? cell(stats[statKey(exercise.prefix, word.id)]) : "<td class=\"hint\">–</td>"
+      ).join("") +
       "</tr>";
   }).join("");
 
-  statsTable.innerHTML = "<table class=\"stats\"><thead><tr>" +
-    "<th>Wort</th><th>Bild finden</th><th>Artikel-Häuser</th>" +
-    "</tr></thead><tbody>" + rows + "</tbody></table>";
+  statsTable.innerHTML = "<div class=\"table-scroll\"><table class=\"stats\"><thead><tr>" +
+    "<th>Wort</th>" + STAT_EXERCISES.map(exercise => "<th>" + exercise.name + "</th>").join("") +
+    "</tr></thead><tbody>" + rows + "</tbody></table></div>";
 
   showScreen(statsScreen);
 }
@@ -1053,251 +1077,40 @@ async function resetStatsOfSet() {
   showStats(statsSet, statsWords);
 }
 
-/* ---------- Spiel ---------- */
+/* ---------- Übungen (die Übungen selbst stehen in session.js, pick.js usw.) ---------- */
 
-// Lernstand-Schlüssel: Wort-ID für "Bild finden", "artikel:<ID>" für Artikel-Häuser
+// Übungen mit Lernstand und ihr Schlüssel im Lernstand
+const STAT_EXERCISES = [
+  { prefix: null, name: "Bild finden" },
+  { prefix: "janein", name: "Ja/Nein" },
+  { prefix: "artikel", name: "Artikel" },
+  { prefix: "benennen", name: "Benennen" }
+];
+
 function getAllStatKeys(words) {
-  return words.flatMap(word => [word.id, "artikel:" + word.id]);
+  return words.flatMap(word => STAT_EXERCISES.map(exercise => statKey(exercise.prefix, word.id)));
 }
 
-function setGameMode(mode) {
-  gameMode = mode;
-  pickGame.classList.toggle("hidden", mode !== "pick");
-  houseGame.classList.toggle("hidden", mode !== "houses");
+function formatDue(due) {
+  if (!due || due <= Date.now()) return "jetzt fällig";
+
+  const days = Math.ceil((due - Date.now()) / DAY);
+  return days === 1 ? "wieder in 1 Tag" : "wieder in " + days + " Tagen";
 }
 
-function startGame(set, words) {
-  unlockAudio();
-  setGameMode("pick");
-
-  images.forEach(image => URL.revokeObjectURL(image.url));
-
-  images = words
-    .filter(word => word.form)
-    .map(word => ({
-      id: word.id,
-      noun: word.noun,
-      form: word.form,
-      audio: word.audio || null,
-      url: URL.createObjectURL(word.image)
-    }));
-
-  numberOfChoices = Math.min(settings.numberOfChoices, images.length);
-
-  showScreen(null);
-
-  settingsButton.classList.add("hidden");
-  nextButton.classList.add("hidden");
-  repeatButton.classList.remove("hidden");
-
-  targetQueue = [];
-  lastTarget = null;
-  roundsPlayed = 0;
-  correctOnFirstTry = 0;
-  updateScore();
-
-  speak("Los geht's.", () => {
-    nextRound();
-  });
-}
-
+// Zurück aus einer Übung zur Übersicht
 function openSettings() {
-  stopSpeaking();
-  stopHouseGame();
-  setGameMode("pick");
-
-  answered = false;
-  correctImage = null;
-  currentChoices = [];
-
-  imageGrid.innerHTML = "";
-  answerWord.classList.add("hidden");
-  scoreDisplay.classList.add("hidden");
+  stopActiveGame();
 
   instruction.textContent = "Höre gut zu und tippe auf das passende Bild.";
+  answerWord.classList.add("hidden");
+  scoreDisplay.classList.add("hidden");
 
   repeatButton.classList.add("hidden");
   nextButton.classList.add("hidden");
   settingsButton.classList.add("hidden");
 
   showHome();
-}
-
-function nextRound() {
-  answered = false;
-  mistakeInRound = false;
-
-  nextButton.classList.add("hidden");
-  settingsButton.classList.add("hidden");
-  answerWord.classList.add("hidden");
-
-  imageGrid.innerHTML = "";
-  imageGrid.style.setProperty("--columns", numberOfChoices);
-
-  correctImage = getNextTarget();
-  lastTarget = correctImage;
-
-  const distractors = shuffle(images.filter(image => image !== correctImage))
-    .slice(0, numberOfChoices - 1);
-
-  currentChoices = shuffle([correctImage, ...distractors]);
-
-  renderImageCards();
-
-  instruction.textContent = "Höre gut zu und tippe auf das passende Bild.";
-
-  setTimeout(() => {
-    speakCurrentWord();
-  }, 500);
-}
-
-function getNextTarget() {
-  if (targetQueue.length === 0) {
-    targetQueue = shuffle(images);
-
-    // Nicht dasselbe Bild zweimal hintereinander suchen lassen
-    if (targetQueue.length > 1 && targetQueue[targetQueue.length - 1] === lastTarget) {
-      targetQueue.unshift(targetQueue.pop());
-    }
-  }
-
-  return targetQueue.pop();
-}
-
-function renderImageCards() {
-  currentChoices.forEach(image => {
-    const card = document.createElement("div");
-    card.classList.add("image-card");
-    card.setAttribute("role", "button");
-    card.tabIndex = 0;
-
-    const img = document.createElement("img");
-    img.src = image.url;
-    img.alt = getDisplayName(image);
-
-    card.appendChild(img);
-
-    card.addEventListener("click", () => {
-      checkAnswer(image, card);
-    });
-
-    card.addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        checkAnswer(image, card);
-      }
-    });
-
-    imageGrid.appendChild(card);
-  });
-}
-
-function shuffle(array) {
-  const result = [...array];
-
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-
-  return result;
-}
-
-function speakCurrentWord() {
-  if (!correctImage) return;
-
-  if (settings.recordings && correctImage.audio) {
-    playRecording(correctImage.audio);
-    return;
-  }
-
-  speak(buildQuestionForImage(correctImage));
-}
-
-function updateScore() {
-  if (roundsPlayed === 0) {
-    scoreDisplay.classList.add("hidden");
-    return;
-  }
-
-  scoreDisplay.textContent =
-    "Beim ersten Versuch richtig: " + correctOnFirstTry + " von " + roundsPlayed;
-  scoreDisplay.classList.remove("hidden");
-}
-
-function showAnswerWord(word) {
-  if (settings.genusColors) {
-    answerWord.innerHTML = "<span class=\"genus-" + word.form + "\">" + escapeHtml(getArticle(word)) + "</span> " +
-      escapeHtml(word.noun);
-  } else {
-    answerWord.textContent = getDisplayName(word);
-  }
-
-  answerWord.classList.remove("hidden");
-}
-
-function checkAnswer(selectedImage, selectedCard) {
-  if (answered || !correctImage) return;
-  if (selectedCard.classList.contains("ruled-out")) return;
-
-  if (selectedImage === correctImage) {
-    answered = true;
-
-    roundsPlayed++;
-    if (!mistakeInRound) correctOnFirstTry++;
-    updateScore();
-
-    recordResult(correctImage.id, !mistakeInRound).catch(() => {});
-
-    imageGrid.querySelectorAll(".image-card").forEach(card => card.classList.remove("hint"));
-    selectedCard.classList.add("correct");
-
-    const feedback = settings.calm
-      ? { text: "Richtig!", animation: "stars" }
-      : getRandomItem(correctMessages);
-
-    instruction.textContent = feedback.text;
-    showAnswerWord(correctImage);
-
-    // Das Wort wird zum Schluss noch einmal als Satz vorgesprochen
-    speak(feedback.text + " " + buildModelSentence(correctImage));
-    createCelebration(selectedCard, feedback.animation, settings.calm);
-
-    setTimeout(() => {
-      nextButton.classList.remove("hidden");
-      settingsButton.classList.remove("hidden");
-    }, 1200);
-
-    return;
-  }
-
-  mistakeInRound = true;
-
-  selectedCard.classList.add("wrong");
-
-  if (settings.errorless) {
-    // Hilfe: falsches Bild ausgrauen, richtiges Bild zeigen und benennen
-    selectedCard.classList.add("ruled-out");
-
-    const correctCard = imageGrid.children[currentChoices.indexOf(correctImage)];
-    correctCard.classList.add("hint");
-
-    const hintText = buildHintSentence(correctImage);
-    instruction.textContent = "Schau mal, hier!";
-    speak("Schau mal. " + hintText);
-  } else {
-    const wrongMessage = settings.calm ? "Noch einmal." : getRandomItem(wrongMessages);
-    instruction.textContent = wrongMessage;
-
-    // Nach dem Hinweis wird die Frage automatisch wiederholt
-    speak(wrongMessage, () => {
-      if (!answered) speakCurrentWord();
-    });
-  }
-
-  setTimeout(() => {
-    selectedCard.classList.remove("wrong");
-  }, 900);
 }
 
 /* ---------- Hilfsfunktionen ---------- */

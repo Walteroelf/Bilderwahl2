@@ -156,6 +156,24 @@ function playRecording(blob, onDone) {
   recordingPlayer.play().catch(() => setTimeout(finish, 250));
 }
 
+// Sprachdateien werden ganz geladen (nicht gestreamt): so spielt Safari sie
+// auch aus dem Offline-Speicher zuverlässig ab. Die letzten Dateien bleiben im Speicher.
+const voiceClipCache = new Map();
+
+async function fetchVoiceClip(file) {
+  if (voiceClipCache.has(file)) return voiceClipCache.get(file);
+
+  const response = await fetch(VOICE_FOLDER + file + ".m4a");
+  if (!response.ok) throw new Error("Sprachdatei fehlt: " + file);
+
+  const blob = await response.blob();
+
+  voiceClipCache.set(file, blob);
+  if (voiceClipCache.size > 40) voiceClipCache.delete(voiceClipCache.keys().next().value);
+
+  return blob;
+}
+
 // Spielt die Dateien nacheinander mit kurzer Pause ab
 function playVoiceClips(files, text, onDone) {
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
@@ -165,7 +183,7 @@ function playVoiceClips(files, text, onDone) {
   const finish = createFinisher(onDone);
   let index = 0;
 
-  const playNext = () => {
+  const playNext = async () => {
     if (token !== speechToken) return;
 
     if (index >= files.length) {
@@ -173,8 +191,23 @@ function playVoiceClips(files, text, onDone) {
       return;
     }
 
-    recordingPlayer.src = VOICE_FOLDER + files[index] + ".m4a";
+    const file = files[index];
     index++;
+
+    let blob;
+
+    try {
+      blob = await fetchVoiceClip(file);
+    } catch (error) {
+      fallback();
+      return;
+    }
+
+    if (token !== speechToken) return;
+
+    if (recordingPlayerUrl) URL.revokeObjectURL(recordingPlayerUrl);
+    recordingPlayerUrl = URL.createObjectURL(blob);
+    recordingPlayer.src = recordingPlayerUrl;
 
     recordingPlayer.play().catch(fallback);
   };

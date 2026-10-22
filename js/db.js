@@ -5,7 +5,9 @@
          libraryId: Kennung des mitgelieferten Wortfelds (sonst fehlt sie = eigenes)
   words: { id, setId, noun, form, image (Blob), audio (Blob | null), credit, order }
          credit: Herkunft des Bildes, z. B. "ARASAAC" (sonst null = eigenes Bild)
-  stats: { wordId, seen, firstTry, history: [true/false …], lastSeen }
+  stats: { wordId, seen, firstTry, history: [true/false …], lastSeen, box, due }
+         wordId: Wort-ID ("Bild finden") oder "<übung>:<Wort-ID>" für andere Übungen
+         box/due: Lernfach 1–5 und Zeitpunkt der nächsten Wiederholung
 
   Alles bleibt lokal im Browser dieses Geräts.
 */
@@ -145,7 +147,18 @@ async function getStats(wordIds) {
   return result;
 }
 
-async function recordResult(wordId, correctOnFirstTry) {
+/*
+  Wiederholung in Abständen (Leitner-System):
+  Auf Anhieb richtig → ein Fach weiter, das Wort kommt erst nach dem
+  Abstand des neuen Fachs wieder dran. Fehler → zurück in Fach 1 (sofort
+  wieder fällig). "teilweise" (nur beim Benennen) lässt das Fach unverändert.
+*/
+const DAY = 24 * 60 * 60 * 1000;
+const BOX_INTERVALS = { 1: 0, 2: DAY, 3: 3 * DAY, 4: 7 * DAY, 5: 14 * DAY };
+
+// result: true (auf Anhieb richtig), false oder "teilweise"
+async function recordResult(wordId, result) {
+  const correctOnFirstTry = result === true;
   const db = await openDatabase();
   const transaction = db.transaction("stats", "readwrite");
   const store = transaction.objectStore("stats");
@@ -160,6 +173,10 @@ async function recordResult(wordId, correctOnFirstTry) {
     if (correctOnFirstTry) entry.firstTry++;
     entry.history = [...entry.history, correctOnFirstTry].slice(-10);
     entry.lastSeen = Date.now();
+
+    const box = entry.box || 1;
+    entry.box = result === true ? Math.min(5, box + 1) : result === "teilweise" ? box : 1;
+    entry.due = entry.lastSeen + BOX_INTERVALS[entry.box];
 
     store.put(entry);
   };
