@@ -1,6 +1,7 @@
 /*
-  Übung "Freirubbeln" (nach dem Foto-Radierer): Das Bild liegt unter einer
-  farbigen Fläche, das Kind rubbelt sie mit dem Finger weg.
+  Übung "Freirubbeln" (nach dem Foto-Radierer): Das Bild liegt im Vollbild
+  unter einer roten Fläche, das Kind rubbelt sie mit dem Finger weg.
+  Vor der ersten Berührung zeigt eine bewegte Hand, wie es geht.
   Ist etwa die Hälfte frei, fragt die App "Was ist das?" (raten, benennen),
   ab 80 % erscheint das ganze Bild und die App nennt das Wort. Ohne Lernstand.
 */
@@ -8,12 +9,13 @@
 const SCRATCH_ROUND = 6;
 const SCRATCH_ASK_AT = 0.45;
 const SCRATCH_REVEAL_AT = 0.8;
-const SCRATCH_COLORS = ["#2563eb", "#dc2626", "#16a34a", "#d97706", "#7c3aed", "#0891b2"];
+const SCRATCH_COLOR = "#e00000";
 
 const scratchGame = document.getElementById("scratchGame");
 const scratchArea = document.getElementById("scratchArea");
 const scratchImage = document.getElementById("scratchImage");
 const scratchCanvas = document.getElementById("scratchCanvas");
+const scratchHand = document.getElementById("scratchHand");
 const scratchContext = scratchCanvas.getContext("2d");
 
 const scratchPointers = new Map();
@@ -31,6 +33,13 @@ const scratchExercise = {
 
   start() {
     scratchImage.removeAttribute("src");
+    document.body.classList.add("scratch-mode");
+  },
+
+  // Am Ende der Runde das Vollbild schließen, damit die Auswertung sichtbar ist
+  finish() {
+    document.body.classList.remove("scratch-mode");
+    scratchGame.classList.add("hidden");
   },
 
   showItem(item) {
@@ -42,6 +51,7 @@ const scratchExercise = {
 
     // Erst die Fläche zeichnen, dann das Bild setzen – so blitzt es nicht kurz auf
     scratchCanvas.classList.remove("hidden");
+    scratchHand.classList.remove("hidden");
     coverScratchArea();
     scratchImage.src = item.url;
 
@@ -62,6 +72,7 @@ const scratchExercise = {
   },
 
   stop() {
+    document.body.classList.remove("scratch-mode");
     clearTimeout(scratchCheckTimer);
     scratchPointers.clear();
     scratchImage.removeAttribute("src");
@@ -85,19 +96,10 @@ function coverScratchArea() {
   scratchContext.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   scratchContext.globalCompositeOperation = "source-over";
-  scratchContext.fillStyle = getRandomItem(SCRATCH_COLORS);
+  scratchContext.fillStyle = SCRATCH_COLOR;
   scratchContext.fillRect(0, 0, rect.width, rect.height);
 
-  // Ein paar Sterne auf der Fläche laden zum Rubbeln ein
-  scratchContext.fillStyle = "rgba(255, 255, 255, 0.35)";
-  scratchContext.font = Math.round(rect.width / 9) + "px sans-serif";
-  scratchContext.textAlign = "center";
-  scratchContext.textBaseline = "middle";
-  [[0.25, 0.3], [0.7, 0.25], [0.5, 0.55], [0.3, 0.78], [0.75, 0.75]].forEach(([x, y]) => {
-    scratchContext.fillText("★", rect.width * x, rect.height * y);
-  });
-
-  scratchRadius = Math.max(18, rect.width * 0.07);
+  scratchRadius = Math.max(22, Math.min(rect.width, rect.height) * 0.06);
 }
 
 function scratchAt(x, y) {
@@ -136,6 +138,9 @@ function getScratchPosition(event) {
 scratchCanvas.addEventListener("pointerdown", event => {
   event.preventDefault();
   if (scratchRevealed || !session.current) return;
+
+  // Sobald das Kind selbst rubbelt, verschwindet die Hand
+  scratchHand.classList.add("hidden");
 
   const position = getScratchPosition(event);
   scratchPointers.set(event.pointerId, position);
@@ -217,6 +222,7 @@ function revealScratchImage() {
   scratchPointers.clear();
   scratchContext.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height);
   scratchCanvas.classList.add("hidden");
+  scratchHand.classList.add("hidden");
 
   const praise = pickPraise();
   instruction.textContent = praise.text;

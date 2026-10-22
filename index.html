@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 12</title>
+  <title>Sprachverständnis-App – Version 13</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -12,13 +12,13 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#2563eb" />
 
-  <link rel="stylesheet" href="css/style.css?v=12" />
+  <link rel="stylesheet" href="css/style.css?v=13" />
 </head>
 
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 12</div>
+    <div class="version">Version 13</div>
     <div class="score hidden" id="score"></div>
   </header>
 
@@ -75,6 +75,22 @@
       <div class="scratch-area" id="scratchArea">
         <img id="scratchImage" alt="" />
         <canvas id="scratchCanvas"></canvas>
+        <div class="scratch-hand" id="scratchHand" aria-hidden="true">
+          <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#ffffff" stroke="#1e293b" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+              <!-- Zeigefinger -->
+              <rect x="28" y="4" width="21" height="80" rx="10.5" />
+              <!-- eingerollte Finger (nur die Knöchel sind sichtbar) -->
+              <rect x="47" y="60" width="17" height="30" rx="8.5" />
+              <rect x="62" y="65" width="17" height="28" rx="8.5" />
+              <rect x="77" y="71" width="16" height="25" rx="8" />
+              <!-- Daumen -->
+              <path d="M30 92 C20 86 8 80 6 90 C4 98 16 106 28 112" />
+              <!-- Handfläche -->
+              <path d="M26 84 L26 112 C26 128 40 136 58 136 C78 136 93 124 93 104 L93 86 C93 80 88 78 84 80 L28 80 C26 80 26 82 26 84 Z" />
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
 
@@ -357,20 +373,20 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=12"></script>
-  <script src="js/wordfields.js?v=12"></script>
-  <script src="js/voice.js?v=12"></script>
-  <script src="js/db.js?v=12"></script>
-  <script src="js/speech.js?v=12"></script>
-  <script src="js/celebration.js?v=12"></script>
-  <script src="js/app.js?v=12"></script>
-  <script src="js/session.js?v=12"></script>
-  <script src="js/pick.js?v=12"></script>
-  <script src="js/sort.js?v=12"></script>
-  <script src="js/yesno.js?v=12"></script>
-  <script src="js/memory.js?v=12"></script>
-  <script src="js/naming.js?v=12"></script>
-  <script src="js/scratch.js?v=12"></script>
-  <script src="js/offline.js?v=12"></script>
+  <script src="js/words.js?v=13"></script>
+  <script src="js/wordfields.js?v=13"></script>
+  <script src="js/voice.js?v=13"></script>
+  <script src="js/db.js?v=13"></script>
+  <script src="js/speech.js?v=13"></script>
+  <script src="js/celebration.js?v=13"></script>
+  <script src="js/app.js?v=13"></script>
+  <script src="js/session.js?v=13"></script>
+  <script src="js/pick.js?v=13"></script>
+  <script src="js/sort.js?v=13"></script>
+  <script src="js/yesno.js?v=13"></script>
+  <script src="js/memory.js?v=13"></script>
+  <script src="js/naming.js?v=13"></script>
+  <script src="js/scratch.js?v=13"></script>
+  <script src="js/offline.js?v=13"></script>
 </body>
 </html>

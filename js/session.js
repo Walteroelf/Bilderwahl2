@@ -11,6 +11,7 @@
     repeat()   (Knopf "Noch einmal hören")
     stop()     (aufräumen)
     restart(set, words)
+    finish()   (optional: wird vor der Auswertung aufgerufen)
     continuous (optional: true = keine Einzelaufgaben, die Übung beendet die Runde selbst)
 */
 
@@ -181,6 +182,7 @@ function updateSessionScore() {
 
 function finishSession(text) {
   session.current = null;
+  if (session.game && session.game.finish) session.game.finish();
   repeatButton.classList.add("hidden");
   nextButton.classList.add("hidden");
 

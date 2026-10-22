@@ -987,22 +987,20 @@ button.memory-card:focus-visible {
 
 /* Freirubbeln */
 
+/* Vollbild über der ganzen Seite; die Knöpfe unten bleiben darüber (z-index 50) */
 .scratch-area {
-  position: relative;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
   overflow: hidden;
-  margin: 0 auto;
-  width: min(90vw, 55vh, 520px);
-  aspect-ratio: 1;
-  border-radius: 24px;
-  background: var(--card);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  background: #fff;
 }
 
 .scratch-area img {
   position: absolute;
-  inset: 6%;
-  width: 88%;
-  height: 88%;
+  inset: 4%;
+  width: 92%;
+  height: 92%;
   object-fit: contain;
   pointer-events: none;
   user-select: none;
@@ -1016,6 +1014,59 @@ button.memory-card:focus-visible {
   height: 100%;
   touch-action: none;
   cursor: pointer;
+}
+
+/* Hinweis- und Lösungstext schweben im Vollbild oben */
+body.scratch-mode #instruction,
+body.scratch-mode #answerWord {
+  position: fixed;
+  left: 50%;
+  z-index: 45;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.4rem 1.2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+body.scratch-mode #instruction {
+  top: max(1rem, env(safe-area-inset-top));
+  min-height: 0;
+}
+
+body.scratch-mode #answerWord {
+  top: calc(max(1rem, env(safe-area-inset-top)) + 3.6rem);
+}
+
+/* Hand, die das Rubbeln vormacht: die Fingerspitze fährt im Zickzack */
+.scratch-hand {
+  position: absolute;
+  z-index: 2;
+  width: clamp(95px, 18vmin, 170px);
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+  /* Fingerspitze sitzt auf dem Bewegungspunkt, Hand leicht nach links geneigt */
+  transform: translate(-38%, -3%) rotate(-18deg);
+  transform-origin: 38% 3%;
+  animation: scratch-hand-rub 2.6s ease-in-out infinite;
+}
+
+.scratch-hand svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@keyframes scratch-hand-rub {
+  0% { left: 25%; top: 35%; }
+  20% { left: 70%; top: 40%; }
+  40% { left: 30%; top: 50%; }
+  60% { left: 72%; top: 56%; }
+  80% { left: 34%; top: 64%; }
+  100% { left: 25%; top: 35%; }
 }
 
 /* Auswertung am Ende einer Übung */
@@ -1148,6 +1199,12 @@ table.stats td {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .scratch-hand {
+    animation: none;
+    left: 45%;
+    top: 45%;
+  }
+
   .house.hint,
   .house.wrong,
   .image-card.hint,
