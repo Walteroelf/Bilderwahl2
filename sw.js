@@ -8,7 +8,7 @@
     gespeichert, oder alle auf einmal über "Für Offline-Nutzung laden".
 */
 
-const VERSION = "13";
+const VERSION = "14";
 const APP_CACHE = "bilderwahl-app-" + VERSION;
 const MEDIA_CACHE = "bilderwahl-medien";
 

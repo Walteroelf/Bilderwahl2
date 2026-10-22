@@ -3,12 +3,18 @@
   unter einer roten Fläche, das Kind rubbelt sie mit dem Finger weg.
   Vor der ersten Berührung zeigt eine bewegte Hand, wie es geht.
   Ist etwa die Hälfte frei, fragt die App "Was ist das?" (raten, benennen),
-  ab 80 % erscheint das ganze Bild und die App nennt das Wort. Ohne Lernstand.
+  ab der eingestellten Schwelle erscheint das ganze Bild und die App nennt das Wort.
+  Ohne Lernstand – die App weiß nicht, ob das Kind das Wort richtig gesagt hat,
+  deshalb gibt es beim Aufdecken kein "Richtig!", sondern nur "Geschafft!".
 */
 
 const SCRATCH_ROUND = 6;
-const SCRATCH_ASK_AT = 0.45;
-const SCRATCH_REVEAL_AT = 0.8;
+// Stiftgröße: Anteil der kürzeren Bildschirmseite und Mindestgröße in Pixeln
+const SCRATCH_BRUSHES = {
+  klein: { share: 0.035, min: 14 },
+  mittel: { share: 0.06, min: 22 },
+  gross: { share: 0.09, min: 32 }
+};
 const SCRATCH_COLOR = "#e00000";
 
 const scratchGame = document.getElementById("scratchGame");
@@ -99,7 +105,8 @@ function coverScratchArea() {
   scratchContext.fillStyle = SCRATCH_COLOR;
   scratchContext.fillRect(0, 0, rect.width, rect.height);
 
-  scratchRadius = Math.max(22, Math.min(rect.width, rect.height) * 0.06);
+  const brush = SCRATCH_BRUSHES[settings.scratchBrush] || SCRATCH_BRUSHES.mittel;
+  scratchRadius = Math.max(brush.min, Math.min(rect.width, rect.height) * brush.share);
 }
 
 function scratchAt(x, y) {
@@ -202,12 +209,17 @@ function checkScratchProgress() {
 
   const progress = getScratchProgress();
 
-  if (progress >= SCRATCH_REVEAL_AT) {
+  const revealAt = Number(settings.scratchReveal) || 0.8;
+
+  // Die Frage kommt etwa bei der Hälfte, bei niedriger Schwelle entsprechend früher
+  const askAt = Math.min(0.45, revealAt - 0.2);
+
+  if (progress >= revealAt) {
     revealScratchImage();
     return;
   }
 
-  if (!scratchAsked && progress >= SCRATCH_ASK_AT) {
+  if (!scratchAsked && progress >= askAt) {
     scratchAsked = true;
     instruction.textContent = "Was ist das?";
     speak("Was ist das?");
@@ -224,12 +236,13 @@ function revealScratchImage() {
   scratchCanvas.classList.add("hidden");
   scratchHand.classList.add("hidden");
 
-  const praise = pickPraise();
-  instruction.textContent = praise.text;
+  // Kein Lob für die Antwort: ob das Wort richtig gesagt wurde, weiß die App nicht.
+  // "Geschafft!" bezieht sich auf das Freirubbeln, danach das Wort als Modell.
+  instruction.textContent = "Geschafft!";
   showAnswerWord(item);
 
-  speak(praise.text + " " + buildModelSentence(item));
-  createCelebration(scratchArea, praise.animation, settings.calm);
+  speak("Geschafft! " + buildModelSentence(item));
+  createCelebration(scratchArea, "confetti", settings.calm);
 
   setTimeout(() => {
     nextButton.classList.remove("hidden");

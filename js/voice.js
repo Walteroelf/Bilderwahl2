@@ -521,6 +521,7 @@ const VOICE_CLIPS = {
 "Gabel": "c72bec2e51",
 "Geige": "41bd3cbdbb",
 "Genau richtig!": "d9aa6e6dcd",
+"Geschafft!": "6e1a4d6e68",
 "Geschenk": "a5dc6eeb22",
 "Giraffe": "09ca16ad9a",
 "Gitarre": "ced3c07f76",

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 13</title>
+  <title>Sprachverständnis-App – Version 14</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -12,13 +12,13 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#2563eb" />
 
-  <link rel="stylesheet" href="css/style.css?v=13" />
+  <link rel="stylesheet" href="css/style.css?v=14" />
 </head>
 
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 13</div>
+    <div class="version">Version 14</div>
     <div class="score hidden" id="score"></div>
   </header>
 
@@ -195,6 +195,26 @@
             Aus: Die App sagt nur „Schal“, das Kind muss den Artikel wissen.
           </span>
         </label>
+
+        <div class="settings-group">
+          <strong>Freirubbeln</strong>
+
+          <label for="scratchBrushSelect">Stiftgröße:</label>
+          <select id="scratchBrushSelect">
+            <option value="klein">Klein</option>
+            <option value="mittel">Mittel</option>
+            <option value="gross">Groß</option>
+          </select>
+
+          <label for="scratchRevealSelect">Bild ganz zeigen ab:</label>
+          <select id="scratchRevealSelect">
+            <option value="0.5">50 % freigerubbelt</option>
+            <option value="0.6">60 % freigerubbelt</option>
+            <option value="0.7">70 % freigerubbelt</option>
+            <option value="0.8">80 % freigerubbelt</option>
+            <option value="0.9">90 % freigerubbelt</option>
+          </select>
+        </div>
 
         <label class="toggle">
           <input type="checkbox" id="bundledVoiceToggle" />
@@ -373,20 +393,20 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=13"></script>
-  <script src="js/wordfields.js?v=13"></script>
-  <script src="js/voice.js?v=13"></script>
-  <script src="js/db.js?v=13"></script>
-  <script src="js/speech.js?v=13"></script>
-  <script src="js/celebration.js?v=13"></script>
-  <script src="js/app.js?v=13"></script>
-  <script src="js/session.js?v=13"></script>
-  <script src="js/pick.js?v=13"></script>
-  <script src="js/sort.js?v=13"></script>
-  <script src="js/yesno.js?v=13"></script>
-  <script src="js/memory.js?v=13"></script>
-  <script src="js/naming.js?v=13"></script>
-  <script src="js/scratch.js?v=13"></script>
-  <script src="js/offline.js?v=13"></script>
+  <script src="js/words.js?v=14"></script>
+  <script src="js/wordfields.js?v=14"></script>
+  <script src="js/voice.js?v=14"></script>
+  <script src="js/db.js?v=14"></script>
+  <script src="js/speech.js?v=14"></script>
+  <script src="js/celebration.js?v=14"></script>
+  <script src="js/app.js?v=14"></script>
+  <script src="js/session.js?v=14"></script>
+  <script src="js/pick.js?v=14"></script>
+  <script src="js/sort.js?v=14"></script>
+  <script src="js/yesno.js?v=14"></script>
+  <script src="js/memory.js?v=14"></script>
+  <script src="js/naming.js?v=14"></script>
+  <script src="js/scratch.js?v=14"></script>
+  <script src="js/offline.js?v=14"></script>
 </body>
 </html>

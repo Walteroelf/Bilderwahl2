@@ -47,6 +47,8 @@ const defaultSettings = {
   genusColors: true,
   recordings: false,
   housesSayArticle: true,
+  scratchBrush: "mittel",
+  scratchReveal: 0.8,
   bundledVoice: true
 };
 
@@ -116,6 +118,8 @@ const calmToggle = document.getElementById("calmToggle");
 const genusToggle = document.getElementById("genusToggle");
 const recordingsToggle = document.getElementById("recordingsToggle");
 const housesArticleToggle = document.getElementById("housesArticleToggle");
+const scratchBrushSelect = document.getElementById("scratchBrushSelect");
+const scratchRevealSelect = document.getElementById("scratchRevealSelect");
 const bundledVoiceToggle = document.getElementById("bundledVoiceToggle");
 
 const editorTitle = document.getElementById("editorTitle");
@@ -167,6 +171,8 @@ calmToggle.addEventListener("change", updateSettingsFromForm);
 genusToggle.addEventListener("change", updateSettingsFromForm);
 recordingsToggle.addEventListener("change", updateSettingsFromForm);
 housesArticleToggle.addEventListener("change", updateSettingsFromForm);
+scratchBrushSelect.addEventListener("change", updateSettingsFromForm);
+scratchRevealSelect.addEventListener("change", updateSettingsFromForm);
 bundledVoiceToggle.addEventListener("change", updateSettingsFromForm);
 
 newSetButton.addEventListener("click", () => openEditor(null));
@@ -208,6 +214,8 @@ function applySettingsToForm() {
   genusToggle.checked = settings.genusColors;
   recordingsToggle.checked = settings.recordings;
   housesArticleToggle.checked = settings.housesSayArticle;
+  scratchBrushSelect.value = settings.scratchBrush;
+  scratchRevealSelect.value = String(settings.scratchReveal);
   bundledVoiceToggle.checked = settings.bundledVoice;
   setBundledVoiceEnabled(settings.bundledVoice);
 }
@@ -221,6 +229,8 @@ function updateSettingsFromForm() {
     genusColors: genusToggle.checked,
     recordings: recordingsToggle.checked,
     housesSayArticle: housesArticleToggle.checked,
+    scratchBrush: scratchBrushSelect.value,
+    scratchReveal: Number(scratchRevealSelect.value),
     bundledVoice: bundledVoiceToggle.checked
   };
 

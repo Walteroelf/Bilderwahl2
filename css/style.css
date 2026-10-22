@@ -506,6 +506,27 @@ details.hint summary {
   font-weight: 700;
 }
 
+.settings-group {
+  margin: 1rem 0;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 2px solid #e2e8f0;
+}
+
+.settings-group strong,
+.settings-group label {
+  display: block;
+}
+
+.settings-group strong {
+  margin-bottom: 0.5rem;
+}
+
+.settings-group select {
+  margin: 0.3rem 0 0.8rem;
+}
+
 .toggle {
   display: flex;
   gap: 0.7rem;
