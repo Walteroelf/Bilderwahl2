@@ -1,7 +1,8 @@
 /*
   Speicherung auf dem Gerät (IndexedDB).
 
-  sets:  { id, name, createdAt }
+  sets:  { id, name, createdAt, libraryId }
+         libraryId: Kennung des mitgelieferten Wortfelds (sonst fehlt sie = eigenes)
   words: { id, setId, noun, form, image (Blob), audio (Blob | null), credit, order }
          credit: Herkunft des Bildes, z. B. "ARASAAC" (sonst null = eigenes Bild)
   stats: { wordId, seen, firstTry, history: [true/false …], lastSeen }
@@ -105,6 +106,14 @@ async function saveSet(set, words) {
     });
   });
 
+  return transactionDone(transaction);
+}
+
+// Ändert nur Name/Kennung eines Wortfelds, nicht die Wörter
+async function saveSetInfo(set) {
+  const db = await openDatabase();
+  const transaction = db.transaction("sets", "readwrite");
+  transaction.objectStore("sets").put(set);
   return transactionDone(transaction);
 }
 

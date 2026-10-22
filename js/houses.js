@@ -277,7 +277,7 @@ function showHouseSummary() {
     "<p>Beim ersten Versuch richtig: <strong>" + houseFirstTry + " von " + houseDone + "</strong></p>" +
     "<div class=\"button-row center\">" +
     "<button id=\"houseAgainButton\">Noch einmal</button>" +
-    "<button id=\"houseBackButton\" class=\"secondary\">Zurück zu den Wortsets</button>" +
+    "<button id=\"houseBackButton\" class=\"secondary\">Zurück zu den Wortfeldern</button>" +
     "</div>";
 
   houseSummary.classList.remove("hidden");

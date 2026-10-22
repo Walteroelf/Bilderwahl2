@@ -322,6 +322,175 @@ button.recording {
   font-size: 0.95rem;
 }
 
+/* Startseite: Wortfelder */
+
+.modal.modal-wide {
+  max-width: 1000px;
+  padding-bottom: 0;
+}
+
+.home-intro {
+  margin-top: -0.5rem;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.field-tile {
+  position: relative;
+  border: 3px solid #e2e8f0;
+  border-radius: 20px;
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field-tile.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+button.field-open {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.8rem 0.6rem 0.7rem;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 18px;
+}
+
+button.field-open:focus-visible {
+  outline: 3px solid var(--text);
+}
+
+.field-cover {
+  display: block;
+  width: 88px;
+  height: 88px;
+}
+
+.field-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.field-name {
+  font-weight: 800;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.field-count {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.field-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.field-check input {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.selection-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1rem -1.5rem 0;
+  padding: 0.9rem 1.5rem;
+  background: #fff;
+  border-top: 2px solid #e2e8f0;
+  border-radius: 0 0 28px 28px;
+}
+
+.selection-bar span {
+  flex: 1 1 12rem;
+  font-weight: 700;
+}
+
+/* Ein Wortfeld im Detail */
+
+.field-words {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+
+.field-word {
+  margin: 0;
+  padding: 0.5rem;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.field-word img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+/* Übung auswählen */
+
+.exercise-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+button.exercise-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 1.2rem;
+  border-radius: 20px;
+  text-align: left;
+  font-weight: 400;
+}
+
+.exercise-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.exercise-text {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.exercise-note {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
 /* Einstellungen */
 
 .settings-box {
@@ -706,6 +875,29 @@ table.stats td {
 @media (max-width: 500px) {
   .modal {
     padding: 1.1rem;
+  }
+
+  .selection-bar {
+    margin: 1rem -1.1rem 0;
+    padding: 0.8rem 1.1rem;
+  }
+
+  .selection-bar span {
+    flex-basis: 100%;
+  }
+
+  .selection-bar button {
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field-cover {
+    width: 64px;
+    height: 64px;
   }
 
   .word-row {

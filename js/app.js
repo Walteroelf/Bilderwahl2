@@ -69,14 +69,30 @@ function saveSettings() {
 /* ---------- Elemente ---------- */
 
 const homeScreen = document.getElementById("homeScreen");
-const libraryScreen = document.getElementById("libraryScreen");
-const libraryList = document.getElementById("libraryList");
-const librarySetButton = document.getElementById("librarySetButton");
-const libraryBackButton = document.getElementById("libraryBackButton");
+const fieldScreen = document.getElementById("fieldScreen");
+const exerciseScreen = document.getElementById("exerciseScreen");
 const editorScreen = document.getElementById("editorScreen");
 const statsScreen = document.getElementById("statsScreen");
 
-const setList = document.getElementById("setList");
+const fieldGrid = document.getElementById("fieldGrid");
+const setupInfo = document.getElementById("setupInfo");
+const restoreFieldsButton = document.getElementById("restoreFieldsButton");
+const selectionInfo = document.getElementById("selectionInfo");
+const clearSelectionButton = document.getElementById("clearSelectionButton");
+const toExerciseButton = document.getElementById("toExerciseButton");
+
+const fieldTitle = document.getElementById("fieldTitle");
+const fieldInfo = document.getElementById("fieldInfo");
+const fieldWords = document.getElementById("fieldWords");
+const fieldActions = document.getElementById("fieldActions");
+const fieldBackButton = document.getElementById("fieldBackButton");
+
+const exerciseInfo = document.getElementById("exerciseInfo");
+const exercisePick = document.getElementById("exercisePick");
+const exercisePickNote = document.getElementById("exercisePickNote");
+const exerciseHouses = document.getElementById("exerciseHouses");
+const exerciseHousesNote = document.getElementById("exerciseHousesNote");
+const exerciseBackButton = document.getElementById("exerciseBackButton");
 const newSetButton = document.getElementById("newSetButton");
 const importSetButton = document.getElementById("importSetButton");
 const importInput = document.getElementById("importInput");
@@ -113,12 +129,12 @@ const settingsButton = document.getElementById("settingsButton");
 
 /* ---------- Zustand ---------- */
 
-// Wortset, das gerade bearbeitet wird
+// Wortfeld, das gerade bearbeitet wird
 let editingSet = null;
 let editingWords = [];
 let activeRecorder = null;
 
-// Wortset, dessen Lernstand angezeigt wird
+// Wortfeld, dessen Lernstand angezeigt wird
 let statsSet = null;
 let statsWords = [];
 
@@ -139,9 +155,10 @@ let mistakeInRound = false;
 
 applySettingsToForm();
 document.getElementById("homeCredit").innerHTML = ARASAAC_CREDIT_HTML;
-document.getElementById("libraryCredit").innerHTML = ARASAAC_CREDIT_HTML;
 requestPersistentStorage();
-showHome();
+
+// Erst starten, wenn alle Skripte geladen sind (auch die weiter unten)
+document.addEventListener("DOMContentLoaded", showHome);
 
 imageCountSelect.addEventListener("change", updateSettingsFromForm);
 errorlessToggle.addEventListener("change", updateSettingsFromForm);
@@ -151,8 +168,13 @@ recordingsToggle.addEventListener("change", updateSettingsFromForm);
 housesArticleToggle.addEventListener("change", updateSettingsFromForm);
 
 newSetButton.addEventListener("click", () => openEditor(null));
-librarySetButton.addEventListener("click", showLibrary);
-libraryBackButton.addEventListener("click", showHome);
+restoreFieldsButton.addEventListener("click", restoreHiddenFields);
+clearSelectionButton.addEventListener("click", clearSelection);
+toExerciseButton.addEventListener("click", showExercise);
+fieldBackButton.addEventListener("click", showHome);
+exerciseBackButton.addEventListener("click", showHome);
+exercisePick.addEventListener("click", () => startGame(exerciseSet, exerciseWords));
+exerciseHouses.addEventListener("click", () => startHouseGame(exerciseSet, exerciseWords));
 importSetButton.addEventListener("click", () => importInput.click());
 importInput.addEventListener("change", importSetFromFile);
 
@@ -162,7 +184,7 @@ cancelEditButton.addEventListener("click", closeEditor);
 wordRows.addEventListener("click", handleWordRowClick);
 wordRows.addEventListener("change", handleWordRowChange);
 
-statsBackButton.addEventListener("click", showHome);
+statsBackButton.addEventListener("click", () => showField(statsSet.id));
 statsResetButton.addEventListener("click", resetStatsOfSet);
 
 repeatButton.addEventListener("click", () => {
@@ -195,93 +217,345 @@ function updateSettingsFromForm() {
   };
 
   saveSettings();
-  renderSetList();
 }
 
 function showScreen(screen) {
-  [homeScreen, libraryScreen, editorScreen, statsScreen].forEach(element => {
+  [homeScreen, fieldScreen, exerciseScreen, editorScreen, statsScreen].forEach(element => {
     element.classList.toggle("hidden", element !== screen);
   });
 }
 
-/* ---------- Startseite: Wortsets ---------- */
+/* ---------- Startseite: Übersicht der Wortfelder ---------- */
+
+const SELECTION_KEY = "bilderwahl-auswahl";
+const HIDDEN_FIELDS_KEY = "bilderwahl-ausgeblendet";
+
+// Alle Wortfelder mit ihren Wörtern, wie sie zuletzt angezeigt wurden
+let homeData = [];
+let homeImageUrls = [];
+let selectedIds = new Set(loadList(SELECTION_KEY));
+let libraryInstall = null;
+
+function loadList(key) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key));
+    return Array.isArray(value) ? value : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveList(key, list) {
+  try {
+    localStorage.setItem(key, JSON.stringify(list));
+  } catch (error) {
+    // nur eine Bequemlichkeit
+  }
+}
+
+function saveSelection() {
+  saveList(SELECTION_KEY, [...selectedIds]);
+}
+
+/*
+  Mitgelieferte Wortfelder werden beim ersten Start einmal auf dem Gerät
+  angelegt. Danach sind sie normale Wortfelder: bearbeitbar, mit Lernstand.
+  Gelöschte mitgelieferte Wortfelder werden gemerkt und nicht neu angelegt.
+*/
+function ensureLibraryInstalled() {
+  if (!libraryInstall) {
+    libraryInstall = installMissingLibraryFields().finally(() => {
+      libraryInstall = null;
+    });
+  }
+
+  return libraryInstall;
+}
+
+async function installMissingLibraryFields() {
+  const sets = await getAllSets();
+  const hidden = loadList(HIDDEN_FIELDS_KEY);
+
+  // Ältere Versionen haben Wortfelder ohne Kennung angelegt: anhand des Namens zuordnen
+  for (const set of sets) {
+    if (set.libraryId) continue;
+
+    const field = WORD_FIELDS.find(item => item.name === set.name);
+    if (!field || sets.some(other => other.libraryId === field.id)) continue;
+
+    const words = await getWordsOfSet(set.id);
+    if (words.length > 0 && words.every(word => word.credit === "ARASAAC")) {
+      set.libraryId = field.id;
+      await saveSetInfo(set);
+    }
+  }
+
+  const installed = new Set(sets.map(set => set.libraryId).filter(Boolean));
+  const missing = WORD_FIELDS.filter(field => !installed.has(field.id) && !hidden.includes(field.id));
+
+  if (missing.length === 0) return;
+
+  setupInfo.textContent = "Wortfelder werden eingerichtet …";
+  setupInfo.classList.remove("hidden");
+
+  let done = 0;
+
+  for (const field of missing) {
+    await addWordFieldAsSet(field);
+    done++;
+    setupInfo.textContent = "Wortfelder werden eingerichtet … " + done + " von " + missing.length;
+  }
+
+  setupInfo.classList.add("hidden");
+}
+
+async function addWordFieldAsSet(field) {
+  const words = await Promise.all(field.words.map(async word => {
+    const response = await fetch(getPictogramUrl(word.picto));
+    if (!response.ok) throw new Error("Bild fehlt: " + word.picto);
+
+    return {
+      id: createId(),
+      noun: word.noun,
+      form: word.form,
+      image: await response.blob(),
+      audio: null,
+      credit: "ARASAAC"
+    };
+  }));
+
+  // Mitgelieferte Wortfelder stehen in der Reihenfolge der Sammlung vor den eigenen
+  const order = WORD_FIELDS.indexOf(field);
+
+  await saveSet({ id: createId(), name: field.name, libraryId: field.id, createdAt: order }, words);
+}
 
 async function showHome() {
   showScreen(homeScreen);
-  await renderSetList();
+
+  try {
+    await ensureLibraryInstalled();
+  } catch (error) {
+    console.warn("Wortfelder konnten nicht eingerichtet werden:", error);
+    setupInfo.textContent = "Einige mitgelieferte Wortfelder konnten nicht eingerichtet werden. " +
+      "Bitte später mit Internetverbindung noch einmal öffnen.";
+    setupInfo.classList.remove("hidden");
+  }
+
+  await renderHome();
 }
 
-async function renderSetList() {
+async function renderHome() {
   let sets;
 
   try {
     sets = await getAllSets();
   } catch (error) {
-    setList.innerHTML = "<p class=\"warning\">Dieser Browser kann keine Wortsets speichern " +
+    fieldGrid.innerHTML = "<p class=\"warning\">Dieser Browser kann keine Wortfelder speichern " +
       "(z. B. im privaten Modus). Bitte in einem normalen Fenster öffnen.</p>";
     newSetButton.disabled = true;
-    librarySetButton.disabled = true;
     importSetButton.disabled = true;
     return;
   }
 
-  if (sets.length === 0) {
-    setList.innerHTML = "<p class=\"hint\">Noch keine Wortsets. Lege eines an, z. B. „Kleidung“ mit Fotos von Schal, Mütze und Strümpfen.</p>";
+  homeData = await Promise.all(sets.map(async set => ({ set: set, words: await getWordsOfSet(set.id) })));
+
+  // Auswahl von gelöschten Wortfeldern bereinigen
+  selectedIds = new Set([...selectedIds].filter(id => homeData.some(item => item.set.id === id)));
+  saveSelection();
+
+  homeImageUrls.forEach(url => URL.revokeObjectURL(url));
+  homeImageUrls = [];
+
+  fieldGrid.innerHTML = "";
+
+  homeData.forEach(({ set, words }) => {
+    const tile = document.createElement("div");
+    tile.className = "field-tile" + (selectedIds.has(set.id) ? " selected" : "");
+
+    const open = document.createElement("button");
+    open.className = "field-open";
+    open.setAttribute("aria-label", set.name + " ansehen");
+
+    const cover = document.createElement("span");
+    cover.className = "field-cover";
+
+    if (words[0]) {
+      const img = document.createElement("img");
+      const url = URL.createObjectURL(words[0].image);
+      homeImageUrls.push(url);
+      img.src = url;
+      img.alt = "";
+      cover.appendChild(img);
+    }
+
+    const name = document.createElement("span");
+    name.className = "field-name";
+    name.textContent = set.name;
+
+    const count = document.createElement("span");
+    count.className = "field-count";
+    count.textContent = words.length + " Wörter" + (set.libraryId ? "" : " · eigenes");
+
+    open.appendChild(cover);
+    open.appendChild(name);
+    open.appendChild(count);
+    open.addEventListener("click", () => showField(set.id));
+
+    const check = document.createElement("label");
+    check.className = "field-check";
+
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.checked = selectedIds.has(set.id);
+    box.setAttribute("aria-label", set.name + " auswählen");
+    box.addEventListener("change", () => {
+      toggleSelection(set.id, box.checked);
+      tile.classList.toggle("selected", box.checked);
+    });
+
+    check.appendChild(box);
+
+    tile.appendChild(open);
+    tile.appendChild(check);
+    fieldGrid.appendChild(tile);
+  });
+
+  restoreFieldsButton.classList.toggle("hidden", loadList(HIDDEN_FIELDS_KEY).length === 0);
+
+  updateSelectionBar();
+}
+
+function toggleSelection(setId, selected) {
+  if (selected) {
+    selectedIds.add(setId);
+  } else {
+    selectedIds.delete(setId);
+  }
+
+  saveSelection();
+  updateSelectionBar();
+}
+
+function getSelectedData() {
+  return homeData.filter(item => selectedIds.has(item.set.id));
+}
+
+// Wörter mehrerer Wortfelder zusammenführen; doppelte Wörter nur einmal
+function combineWords(items) {
+  const seen = new Set();
+  const result = [];
+
+  items.forEach(({ words }) => {
+    words.forEach(word => {
+      const key = (word.form || "") + "|" + word.noun.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      result.push(word);
+    });
+  });
+
+  return result;
+}
+
+function updateSelectionBar() {
+  const items = getSelectedData();
+  const words = combineWords(items);
+
+  if (items.length === 0) {
+    selectionInfo.textContent = "Noch kein Wortfeld ausgewählt";
+  } else {
+    selectionInfo.textContent = items.length + (items.length === 1 ? " Wortfeld" : " Wortfelder") +
+      " · " + words.length + " Wörter";
+  }
+
+  toExerciseButton.disabled = items.length === 0;
+  clearSelectionButton.classList.toggle("hidden", items.length === 0);
+}
+
+function clearSelection() {
+  selectedIds.clear();
+  saveSelection();
+  renderHome();
+}
+
+async function restoreHiddenFields() {
+  saveList(HIDDEN_FIELDS_KEY, []);
+  await showHome();
+}
+
+/* ---------- Ein Wortfeld im Detail ---------- */
+
+let fieldImageUrls = [];
+
+async function showField(setId) {
+  const sets = await getAllSets();
+  const set = sets.find(item => item.id === setId);
+
+  if (!set) {
+    showHome();
     return;
   }
 
-  const cards = await Promise.all(sets.map(async set => {
-    const words = await getWordsOfSet(set.id);
-    return buildSetCard(set, words);
-  }));
-
-  setList.innerHTML = "";
-  cards.forEach(card => setList.appendChild(card));
-}
-
-function buildSetCard(set, words) {
-  const card = document.createElement("div");
-  card.className = "set-card";
-
+  const words = await getWordsOfSet(set.id);
   const missing = words.filter(word => !word.form).length;
   const usesArasaac = words.some(word => word.credit === "ARASAAC");
-  const playable = words.length - missing >= settings.numberOfChoices;
-  const housesPlayable = getHouseWords(words).length >= 2;
 
-  const thumbs = document.createElement("div");
-  thumbs.className = "set-thumbs";
+  fieldTitle.textContent = set.name;
+  fieldInfo.innerHTML = words.length + " Wörter" +
+    (set.libraryId ? " · mitgeliefert" : " · eigenes Wortfeld") +
+    (usesArasaac ? " · Piktogramme: ARASAAC" : "") +
+    (missing > 0 ? " · <span class=\"warning\">" + missing + " ohne Artikel (werden nicht geübt)</span>" : "");
 
-  words.slice(0, 6).forEach(word => {
+  fieldImageUrls.forEach(url => URL.revokeObjectURL(url));
+  fieldImageUrls = [];
+
+  fieldWords.innerHTML = "";
+
+  words.forEach(word => {
+    const item = document.createElement("figure");
+    item.className = "field-word";
+
     const img = document.createElement("img");
-    img.src = URL.createObjectURL(word.image);
+    const url = URL.createObjectURL(word.image);
+    fieldImageUrls.push(url);
+    img.src = url;
     img.alt = "";
-    img.onload = () => URL.revokeObjectURL(img.src);
-    thumbs.appendChild(img);
+
+    const caption = document.createElement("figcaption");
+
+    if (word.form) {
+      caption.innerHTML = "<span class=\"genus-" + word.form + "\">" + escapeHtml(getArticle(word)) + "</span> " +
+        escapeHtml(word.noun);
+    } else {
+      caption.innerHTML = escapeHtml(word.noun) + " <span class=\"warning\">?</span>";
+    }
+
+    item.appendChild(img);
+    item.appendChild(caption);
+    fieldWords.appendChild(item);
   });
 
-  const info = document.createElement("div");
-  info.className = "set-info";
-  info.innerHTML = "<strong>" + escapeHtml(set.name) + "</strong><br />" +
-    words.length + " Wörter" +
-    (usesArasaac ? " · <span class=\"hint\">Piktogramme: ARASAAC</span>" : "") +
-    (missing > 0 ? " · <span class=\"warning\">" + missing + " ohne Artikel</span>" : "") +
-    (!playable && missing === 0 ? " · <span class=\"warning\">mindestens " + settings.numberOfChoices + " Wörter nötig</span>" : "");
+  fieldActions.innerHTML = "";
 
-  const actions = document.createElement("div");
-  actions.className = "set-actions";
+  fieldActions.appendChild(makeButton("Nur dieses Wortfeld üben", "", () => {
+    selectedIds = new Set([set.id]);
+    saveSelection();
+    showExercise();
+  }));
 
-  actions.appendChild(makeButton("Bild finden", "", () => startGame(set, words), !playable));
-  actions.appendChild(makeButton("Artikel-Häuser", "", () => startHouseGame(set, words), !housesPlayable));
-  actions.appendChild(makeButton("Bearbeiten", "secondary", () => openEditor(set)));
-  actions.appendChild(makeButton("Lernstand", "secondary", () => showStats(set, words)));
-  actions.appendChild(makeButton("Exportieren", "secondary", () => exportSet(set, words)));
-  actions.appendChild(makeButton("Löschen", "secondary danger", () => confirmDeleteSet(set)));
+  const inSelection = selectedIds.has(set.id);
+  fieldActions.appendChild(makeButton(inSelection ? "Aus der Auswahl nehmen" : "Zur Auswahl hinzufügen", "secondary", () => {
+    toggleSelection(set.id, !inSelection);
+    showField(set.id);
+  }));
 
-  card.appendChild(thumbs);
-  card.appendChild(info);
-  card.appendChild(actions);
+  fieldActions.appendChild(makeButton("Bearbeiten", "secondary", () => openEditor(set)));
+  fieldActions.appendChild(makeButton("Lernstand", "secondary", () => showStats(set, words)));
+  fieldActions.appendChild(makeButton("Exportieren", "secondary", () => exportSet(set, words)));
+  fieldActions.appendChild(makeButton("Löschen", "secondary danger", () => confirmDeleteSet(set)));
 
-  return card;
+  showScreen(fieldScreen);
 }
 
 function makeButton(label, className, onClick, disabled) {
@@ -294,13 +568,60 @@ function makeButton(label, className, onClick, disabled) {
 }
 
 async function confirmDeleteSet(set) {
-  if (!confirm("Wortset „" + set.name + "“ mit allen Bildern, Aufnahmen und dem Lernstand löschen?")) return;
+  const message = set.libraryId
+    ? "Wortfeld „" + set.name + "“ mit allen Änderungen und dem Lernstand löschen?\n\n" +
+      "Mitgelieferte Wortfelder lassen sich auf der Startseite über „Gelöschte Wortfelder wiederherstellen“ zurückholen."
+    : "Wortfeld „" + set.name + "“ mit allen Bildern, Aufnahmen und dem Lernstand löschen?";
+
+  if (!confirm(message)) return;
+
+  if (set.libraryId) {
+    saveList(HIDDEN_FIELDS_KEY, [...new Set([...loadList(HIDDEN_FIELDS_KEY), set.libraryId])]);
+  }
 
   await deleteSet(set.id);
-  renderSetList();
+  selectedIds.delete(set.id);
+  saveSelection();
+  showHome();
 }
 
-/* ---------- Wortset bearbeiten ---------- */
+/* ---------- Übung auswählen ---------- */
+
+let exerciseSet = null;
+let exerciseWords = [];
+
+function showExercise() {
+  const items = getSelectedData().length > 0
+    ? getSelectedData()
+    : [];
+
+  if (items.length === 0) {
+    showHome();
+    return;
+  }
+
+  exerciseWords = combineWords(items);
+  exerciseSet = { id: "auswahl", name: items.map(item => item.set.name).join(", ") };
+
+  exerciseInfo.textContent = exerciseSet.name + " · " + exerciseWords.length + " Wörter";
+
+  const withArticle = exerciseWords.filter(word => word.form).length;
+  const houseCount = getHouseWords(exerciseWords).length;
+
+  exercisePick.disabled = withArticle < settings.numberOfChoices;
+  exercisePickNote.textContent = exercisePick.disabled
+    ? "Mindestens " + settings.numberOfChoices + " Wörter mit Artikel nötig."
+    : withArticle + " Wörter · " + settings.numberOfChoices + " Bilder zur Auswahl";
+
+  exerciseHouses.disabled = houseCount < 2;
+  exerciseHousesNote.textContent = exerciseHouses.disabled
+    ? "Mindestens 2 Wörter mit Artikel nötig."
+    : houseCount + " Bilder zum Einsortieren";
+
+  showScreen(exerciseScreen);
+}
+
+/* ---------- Wortfeld bearbeiten ---------- */
 
 async function openEditor(set) {
   editingSet = set ? { ...set } : { id: createId(), name: "", createdAt: Date.now() };
@@ -317,7 +638,7 @@ async function openEditor(set) {
     credit: word.credit || null
   }));
 
-  editorTitle.textContent = set ? "Wortset bearbeiten" : "Neues Wortset";
+  editorTitle.textContent = set ? "Wortfeld bearbeiten" : "Neues Wortfeld";
   setNameInput.value = editingSet.name;
   fileInput.value = "";
   fileInfo.textContent = "";
@@ -329,11 +650,15 @@ async function openEditor(set) {
 }
 
 function closeEditor() {
+  const setId = editingSet && editingSet.id;
+
   stopActiveRecording();
   editingWords.forEach(word => URL.revokeObjectURL(word.imageUrl));
   editingWords = [];
   editingSet = null;
-  showHome();
+
+  // Zurück zum Wortfeld, falls es gespeichert ist – sonst zur Übersicht
+  showField(setId);
 }
 
 async function addFilesToEditor(event) {
@@ -373,7 +698,7 @@ async function addFilesToEditor(event) {
     messages.push(unreadable.length + " Bild(er) können nicht angezeigt werden (bitte als JPG oder PNG speichern): " + unreadable.join(", "));
   }
   if (skipped > 0) {
-    messages.push(skipped + " Bild(er) übersprungen – höchstens " + MAX_WORDS_PER_SET + " Wörter pro Wortset.");
+    messages.push(skipped + " Bild(er) übersprungen – höchstens " + MAX_WORDS_PER_SET + " Wörter pro Wortfeld.");
   }
 
   fileInfo.textContent = messages.join(" ");
@@ -599,7 +924,7 @@ async function stopActiveRecording() {
 async function saveEditor() {
   await stopActiveRecording();
 
-  editingSet.name = setNameInput.value.trim() || "Wortset ohne Namen";
+  editingSet.name = setNameInput.value.trim() || "Wortfeld ohne Namen";
 
   try {
     await saveSet(editingSet, editingWords);
@@ -609,78 +934,6 @@ async function saveEditor() {
   }
 
   closeEditor();
-}
-
-/* ---------- Sammlung mitgelieferter Wortfelder ---------- */
-
-function showLibrary() {
-  showScreen(libraryScreen);
-
-  libraryList.innerHTML = "";
-
-  WORD_FIELDS.forEach(field => {
-    const card = document.createElement("div");
-    card.className = "set-card";
-
-    const thumbs = document.createElement("div");
-    thumbs.className = "set-thumbs";
-
-    field.words.slice(0, 6).forEach(word => {
-      const img = document.createElement("img");
-      img.src = getPictogramUrl(word.picto);
-      img.alt = "";
-      img.loading = "lazy";
-      thumbs.appendChild(img);
-    });
-
-    const info = document.createElement("div");
-    info.className = "set-info";
-    info.innerHTML = "<strong>" + escapeHtml(field.name) + "</strong><br />" +
-      "<span class=\"hint\">" + field.words.map(word => escapeHtml(getDisplayName(word))).join(", ") + "</span>";
-
-    const actions = document.createElement("div");
-    actions.className = "set-actions";
-
-    const addButton = makeButton("Als Wortset anlegen", "", async () => {
-      addButton.disabled = true;
-      addButton.textContent = "Wird angelegt …";
-
-      try {
-        await addWordFieldAsSet(field);
-        showHome();
-      } catch (error) {
-        addButton.disabled = false;
-        addButton.textContent = "Als Wortset anlegen";
-        alert("Die Bilder konnten nicht geladen werden. Besteht eine Internetverbindung?");
-      }
-    });
-
-    actions.appendChild(addButton);
-
-    card.appendChild(thumbs);
-    card.appendChild(info);
-    card.appendChild(actions);
-
-    libraryList.appendChild(card);
-  });
-}
-
-async function addWordFieldAsSet(field) {
-  const words = await Promise.all(field.words.map(async word => {
-    const response = await fetch(getPictogramUrl(word.picto));
-    if (!response.ok) throw new Error("Bild fehlt: " + word.picto);
-
-    return {
-      id: createId(),
-      noun: word.noun,
-      form: word.form,
-      image: await response.blob(),
-      audio: null,
-      credit: "ARASAAC"
-    };
-  }));
-
-  await saveSet({ id: createId(), name: field.name, createdAt: Date.now() }, words);
 }
 
 /* ---------- Export und Import ---------- */
@@ -716,7 +969,7 @@ async function exportSet(set, words) {
   const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "Wortset " + set.name.replace(/[\\/:*?"<>|]+/g, "") + ".json";
+  link.download = "Wortfeld " + set.name.replace(/[\\/:*?"<>|]+/g, "") + ".json";
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -732,10 +985,10 @@ async function importSetFromFile(event) {
     const data = JSON.parse(await file.text());
 
     if (data.app !== "bilderwahl" || !Array.isArray(data.words)) {
-      throw new Error("Keine Wortset-Datei");
+      throw new Error("Keine Wortfeld-Datei");
     }
 
-    const set = { id: createId(), name: String(data.name || "Importiertes Wortset"), createdAt: Date.now() };
+    const set = { id: createId(), name: String(data.name || "Importiertes Wortfeld"), createdAt: Date.now() };
 
     const words = await Promise.all(data.words.slice(0, MAX_WORDS_PER_SET).map(async word => ({
       id: createId(),
@@ -747,9 +1000,9 @@ async function importSetFromFile(event) {
     })));
 
     await saveSet(set, words);
-    renderSetList();
+    renderHome();
   } catch (error) {
-    alert("Diese Datei konnte nicht als Wortset gelesen werden.");
+    alert("Diese Datei konnte nicht als Wortfeld gelesen werden.");
   }
 }
 

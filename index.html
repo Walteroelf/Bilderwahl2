@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 6</title>
+  <title>Sprachverständnis-App – Version 7</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -12,13 +12,13 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#2563eb" />
 
-  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
 </head>
 
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 6</div>
+    <div class="version">Version 7</div>
     <div class="score hidden" id="score"></div>
   </header>
 
@@ -41,7 +41,7 @@
   </main>
 
   <div class="settings-bar">
-    <button class="hidden" id="settingsButton" aria-label="Zurück zu den Wortsets">⚙️</button>
+    <button class="hidden" id="settingsButton" aria-label="Zurück zu den Wortfeldern">⚙️</button>
   </div>
 
   <div class="repeat-bar">
@@ -52,17 +52,23 @@
     <button class="hidden" id="nextButton">Weiter</button>
   </div>
 
-  <!-- Startseite: Wortsets und Einstellungen -->
+  <!-- Startseite: Übersicht der Wortfelder -->
   <div class="modal-backdrop" id="homeScreen">
-    <div class="modal">
-      <h2>Wortsets</h2>
+    <div class="modal modal-wide">
+      <h2>Wortfelder</h2>
+      <p class="hint home-intro">
+        <strong>Haken setzen</strong>, um ein oder mehrere Wortfelder zu üben.
+        <strong>Wortfeld antippen</strong>, um es anzusehen, zu bearbeiten oder den Lernstand zu sehen.
+      </p>
 
-      <div id="setList" class="set-list"></div>
+      <div id="setupInfo" class="hint hidden"></div>
+
+      <div id="fieldGrid" class="field-grid"></div>
 
       <div class="button-row">
-        <button id="librarySetButton">+ Wortfeld aus der Sammlung</button>
-        <button id="newSetButton" class="secondary">+ Eigenes Wortset</button>
-        <button id="importSetButton" class="secondary">Wortset importieren</button>
+        <button id="newSetButton" class="secondary">+ Eigenes Wortfeld</button>
+        <button id="importSetButton" class="secondary">Wortfeld importieren</button>
+        <button id="restoreFieldsButton" class="secondary hidden">Gelöschte Wortfelder wiederherstellen</button>
         <input type="file" id="importInput" accept=".json,application/json" class="hidden" />
       </div>
 
@@ -126,41 +132,63 @@
       </details>
 
       <p class="hint">
-        Wortsets werden nur auf diesem Gerät in diesem Browser gespeichert.
+        Eigene Wortfelder, Änderungen und der Lernstand werden nur auf diesem Gerät in diesem Browser gespeichert.
         Am besten die App über „Teilen → Zum Home-Bildschirm“ als App ablegen
-        und wichtige Wortsets ab und zu exportieren (Sicherung, Weitergeben an Kolleginnen und Kollegen).
+        und eigene Wortfelder ab und zu exportieren (Sicherung, Weitergeben an Kolleginnen und Kollegen).
       </p>
 
       <p class="credit" id="homeCredit"></p>
-    </div>
-  </div>
 
-  <!-- Sammlung mitgelieferter Wortfelder -->
-  <div class="modal-backdrop hidden" id="libraryScreen">
-    <div class="modal">
-      <h2>Wortfelder aus der Sammlung</h2>
-      <p class="hint">
-        Fertige Wortfelder mit Piktogrammen. Ein Wortfeld wird als eigenes Wortset angelegt
-        und lässt sich danach wie jedes andere bearbeiten – z. B. Wörter entfernen
-        oder eigene Fotos ergänzen.
-      </p>
-
-      <div id="libraryList" class="set-list"></div>
-
-      <p class="credit" id="libraryCredit"></p>
-
-      <div class="button-row">
-        <button id="libraryBackButton" class="secondary">Zurück</button>
+      <div class="selection-bar" id="selectionBar">
+        <span id="selectionInfo">Noch kein Wortfeld ausgewählt</span>
+        <button id="clearSelectionButton" class="secondary small hidden">Auswahl aufheben</button>
+        <button id="toExerciseButton" disabled>Weiter zur Übung</button>
       </div>
     </div>
   </div>
 
-  <!-- Wortset bearbeiten -->
+  <!-- Ein Wortfeld im Detail -->
+  <div class="modal-backdrop hidden" id="fieldScreen">
+    <div class="modal">
+      <h2 id="fieldTitle"></h2>
+      <p class="hint" id="fieldInfo"></p>
+      <div id="fieldWords" class="field-words"></div>
+      <div class="button-row" id="fieldActions"></div>
+      <div class="button-row">
+        <button id="fieldBackButton" class="secondary">Zurück zur Übersicht</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Übung auswählen -->
+  <div class="modal-backdrop hidden" id="exerciseScreen">
+    <div class="modal">
+      <h2>Welche Übung?</h2>
+      <p class="hint" id="exerciseInfo"></p>
+      <div class="exercise-list">
+        <button class="exercise-card" id="exercisePick">
+          <span class="exercise-title">Bild finden</span>
+          <span class="exercise-text">Die App fragt „Wo ist der Schal?“, das Kind tippt auf das passende Bild.</span>
+          <span class="exercise-note" id="exercisePickNote"></span>
+        </button>
+        <button class="exercise-card" id="exerciseHouses">
+          <span class="exercise-title">Artikel-Häuser</span>
+          <span class="exercise-text">Das Kind zieht jedes Bild in das der-, die-, das- oder Mehrzahl-Haus.</span>
+          <span class="exercise-note" id="exerciseHousesNote"></span>
+        </button>
+      </div>
+      <div class="button-row">
+        <button id="exerciseBackButton" class="secondary">Zurück zur Auswahl</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wortfeld bearbeiten -->
   <div class="modal-backdrop hidden" id="editorScreen">
     <div class="modal">
-      <h2 id="editorTitle">Wortset bearbeiten</h2>
+      <h2 id="editorTitle">Wortfeld bearbeiten</h2>
 
-      <label for="setNameInput"><strong>Name des Wortsets:</strong></label>
+      <label for="setNameInput"><strong>Name des Wortfelds:</strong></label>
       <input type="text" id="setNameInput" class="text-input" placeholder="z. B. Kleidung" />
 
       <label for="fileInput"><strong>Bilder hinzufügen:</strong></label>
@@ -213,12 +241,12 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=6"></script>
-  <script src="js/wordfields.js?v=6"></script>
-  <script src="js/db.js?v=6"></script>
-  <script src="js/speech.js?v=6"></script>
-  <script src="js/celebration.js?v=6"></script>
-  <script src="js/app.js?v=6"></script>
-  <script src="js/houses.js?v=6"></script>
+  <script src="js/words.js?v=7"></script>
+  <script src="js/wordfields.js?v=7"></script>
+  <script src="js/db.js?v=7"></script>
+  <script src="js/speech.js?v=7"></script>
+  <script src="js/celebration.js?v=7"></script>
+  <script src="js/app.js?v=7"></script>
+  <script src="js/houses.js?v=7"></script>
 </body>
 </html>

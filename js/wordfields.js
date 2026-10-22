@@ -210,5 +210,149 @@ const WORD_FIELDS = [
       { noun: "Arzt", form: "der", picto: 2467 },
       { noun: "Koch", form: "der", picto: 6985 }
     ]
+  },
+  {
+    id: "zootiere",
+    name: "Zootiere",
+    words: [
+      { noun: "Löwe", form: "der", picto: 2449 },
+      { noun: "Elefant", form: "der", picto: 2372 },
+      { noun: "Giraffe", form: "die", picto: 2437 },
+      { noun: "Affe", form: "der", picto: 2477 },
+      { noun: "Zebra", form: "das", picto: 2324 },
+      { noun: "Tiger", form: "der", picto: 2590 },
+      { noun: "Bär", form: "der", picto: 2488 },
+      { noun: "Krokodil", form: "das", picto: 2343 },
+      { noun: "Schlange", form: "die", picto: 2568 },
+      { noun: "Pinguin", form: "der", picto: 3243 },
+      { noun: "Nilpferd", form: "das", picto: 2424 },
+      { noun: "Kamel", form: "das", picto: 8522 }
+    ]
+  },
+  {
+    id: "kleine-tiere",
+    name: "Kleine Tiere",
+    words: [
+      { noun: "Biene", form: "die", picto: 2239 },
+      { noun: "Spinne", form: "die", picto: 2254 },
+      { noun: "Schmetterling", form: "der", picto: 2465 },
+      { noun: "Ameise", form: "die", picto: 2425 },
+      { noun: "Marienkäfer", form: "der", picto: 2924 },
+      { noun: "Schnecke", form: "die", picto: 2685 },
+      { noun: "Wurm", form: "der", picto: 3344 },
+      { noun: "Fliege", form: "die", picto: 2478 },
+      { noun: "Raupe", form: "die", picto: 16727 },
+      { noun: "Igel", form: "der", picto: 26829 },
+      { noun: "Frosch", form: "der", picto: 2543 },
+      { noun: "Libelle", form: "die", picto: 9066 }
+    ]
+  },
+  {
+    id: "natur-wetter",
+    name: "Natur und Wetter",
+    words: [
+      { noun: "Sonne", form: "die", picto: 2798 },
+      { noun: "Mond", form: "der", picto: 2933 },
+      { noun: "Stern", form: "der", picto: 2752 },
+      { noun: "Wolke", form: "die", picto: 2883 },
+      { noun: "Regen", form: "der", picto: 3123 },
+      { noun: "Schnee", form: "der", picto: 3135 },
+      { noun: "Regenbogen", form: "der", picto: 2986 },
+      { noun: "Blitz", form: "der", picto: 2819 },
+      { noun: "Baum", form: "der", picto: 2256 },
+      { noun: "Blume", form: "die", picto: 3102 },
+      { noun: "Blatt", form: "das", picto: 3114 },
+      { noun: "Berg", form: "der", picto: 2909 }
+    ]
+  },
+  {
+    id: "musik",
+    name: "Musikinstrumente",
+    words: [
+      { noun: "Gitarre", form: "die", picto: 2417 },
+      { noun: "Trommel", form: "die", picto: 2578 },
+      { noun: "Flöte", form: "die", picto: 2396 },
+      { noun: "Klavier", form: "das", picto: 2521 },
+      { noun: "Geige", form: "die", picto: 2615 },
+      { noun: "Trompete", form: "die", picto: 2607 },
+      { noun: "Xylophon", form: "das", picto: 38096 },
+      { noun: "Rassel", form: "die", picto: 7254 },
+      { noun: "Tamburin", form: "das", picto: 2495 },
+      { noun: "Mundharmonika", form: "die", picto: 5909 },
+      { noun: "Glocke", form: "die", picto: 5938 },
+      { noun: "Mikrofon", form: "das", picto: 2912 }
+    ]
+  },
+  {
+    id: "fruehstueck",
+    name: "Frühstück",
+    words: [
+      { noun: "Brötchen", form: "das", picto: 36501 },
+      { noun: "Butter", form: "die", picto: 2461 },
+      { noun: "Marmelade", form: "die", picto: 2470 },
+      { noun: "Honig", form: "der", picto: 2911 },
+      { noun: "Orangensaft", form: "der", picto: 2624 },
+      { noun: "Kakao", form: "der", picto: 6448 },
+      { noun: "Tee", form: "der", picto: 2429 },
+      { noun: "Ei", form: "das", picto: 2427 },
+      { noun: "Toast", form: "der", picto: 2787 },
+      { noun: "Croissant", form: "das", picto: 2358 },
+      { noun: "Waffel", form: "die", picto: 34227 },
+      { noun: "Pfannkuchen", form: "der", picto: 37849 }
+    ]
+  },
+  {
+    id: "feste",
+    name: "Feste im Jahr",
+    words: [
+      { noun: "Weihnachtsbaum", form: "der", picto: 3058 },
+      { noun: "Geschenk", form: "das", picto: 3149 },
+      { noun: "Kerze", form: "die", picto: 6242 },
+      { noun: "Weihnachtsmann", form: "der", picto: 3139 },
+      { noun: "Schneemann", form: "der", picto: 3131 },
+      { noun: "Osterhase", form: "der", picto: 39162 },
+      { noun: "Osterei", form: "das", picto: 11304 },
+      { noun: "Kürbis", form: "der", picto: 2679 },
+      { noun: "Torte", form: "die", picto: 25488 },
+      { noun: "Luftballon", form: "der", picto: 2408 },
+      { noun: "Maske", form: "die", picto: 5904 },
+      { noun: "Feuerwerk", form: "das", picto: 5474 }
+    ]
+  },
+  {
+    id: "gesundheit",
+    name: "Arzt und Gesundheit",
+    words: [
+      { noun: "Pflaster", form: "das", picto: 8331 },
+      { noun: "Tablette", form: "die", picto: 34565 },
+      { noun: "Fieberthermometer", form: "das", picto: 32051 },
+      { noun: "Spritze", form: "die", picto: 2960 },
+      { noun: "Verband", form: "der", picto: 6243 },
+      { noun: "Rollstuhl", form: "der", picto: 6212 },
+      { noun: "Krankenhaus", form: "das", picto: 3116 },
+      { noun: "Krücke", form: "die", picto: 8361 },
+      { noun: "Taschentuch", form: "das", picto: 17284 },
+      { noun: "Zahnpasta", form: "die", picto: 2858 },
+      { noun: "Brille", form: "die", picto: 3329 },
+      { noun: "Arztkoffer", form: "der", picto: 2930 }
+    ]
+  },
+  {
+    id: "haushalt-werkzeug",
+    name: "Haushalt und Werkzeug",
+    words: [
+      { noun: "Besen", form: "der", picto: 2693 },
+      { noun: "Eimer", form: "der", picto: 2725 },
+      { noun: "Staubsauger", form: "der", picto: 3227 },
+      { noun: "Schwamm", form: "der", picto: 2749 },
+      { noun: "Waschmaschine", form: "die", picto: 2442 },
+      { noun: "Bügeleisen", form: "das", picto: 2528 },
+      { noun: "Hammer", form: "der", picto: 2922 },
+      { noun: "Säge", form: "die", picto: 2799 },
+      { noun: "Zange", form: "die", picto: 2644 },
+      { noun: "Schraubenzieher", form: "der", picto: 2736 },
+      { noun: "Nagel", form: "der", picto: 8306 },
+      { noun: "Leiter", form: "die", picto: 2743 }
+    ]
   }
 ];
