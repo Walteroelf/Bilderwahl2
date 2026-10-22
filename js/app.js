@@ -44,7 +44,8 @@ const defaultSettings = {
   errorless: true,
   calm: false,
   genusColors: true,
-  recordings: false
+  recordings: false,
+  housesSayArticle: true
 };
 
 let settings = loadSettings();
@@ -85,6 +86,7 @@ const errorlessToggle = document.getElementById("errorlessToggle");
 const calmToggle = document.getElementById("calmToggle");
 const genusToggle = document.getElementById("genusToggle");
 const recordingsToggle = document.getElementById("recordingsToggle");
+const housesArticleToggle = document.getElementById("housesArticleToggle");
 
 const editorTitle = document.getElementById("editorTitle");
 const setNameInput = document.getElementById("setNameInput");
@@ -101,6 +103,7 @@ const statsResetButton = document.getElementById("statsResetButton");
 
 const instruction = document.getElementById("instruction");
 const answerWord = document.getElementById("answerWord");
+const pickGame = document.getElementById("pickGame");
 const imageGrid = document.getElementById("imageGrid");
 const scoreDisplay = document.getElementById("score");
 
@@ -119,7 +122,8 @@ let activeRecorder = null;
 let statsSet = null;
 let statsWords = [];
 
-// Spiel
+// Spiel: "pick" = Bild finden, "houses" = Artikel-Häuser
+let gameMode = "pick";
 let images = [];
 let currentChoices = [];
 let correctImage = null;
@@ -144,6 +148,7 @@ errorlessToggle.addEventListener("change", updateSettingsFromForm);
 calmToggle.addEventListener("change", updateSettingsFromForm);
 genusToggle.addEventListener("change", updateSettingsFromForm);
 recordingsToggle.addEventListener("change", updateSettingsFromForm);
+housesArticleToggle.addEventListener("change", updateSettingsFromForm);
 
 newSetButton.addEventListener("click", () => openEditor(null));
 librarySetButton.addEventListener("click", showLibrary);
@@ -160,7 +165,13 @@ wordRows.addEventListener("change", handleWordRowChange);
 statsBackButton.addEventListener("click", showHome);
 statsResetButton.addEventListener("click", resetStatsOfSet);
 
-repeatButton.addEventListener("click", speakCurrentWord);
+repeatButton.addEventListener("click", () => {
+  if (gameMode === "houses") {
+    speakHouseWord();
+  } else {
+    speakCurrentWord();
+  }
+});
 nextButton.addEventListener("click", nextRound);
 settingsButton.addEventListener("click", openSettings);
 
@@ -170,6 +181,7 @@ function applySettingsToForm() {
   calmToggle.checked = settings.calm;
   genusToggle.checked = settings.genusColors;
   recordingsToggle.checked = settings.recordings;
+  housesArticleToggle.checked = settings.housesSayArticle;
 }
 
 function updateSettingsFromForm() {
@@ -178,7 +190,8 @@ function updateSettingsFromForm() {
     errorless: errorlessToggle.checked,
     calm: calmToggle.checked,
     genusColors: genusToggle.checked,
-    recordings: recordingsToggle.checked
+    recordings: recordingsToggle.checked,
+    housesSayArticle: housesArticleToggle.checked
   };
 
   saveSettings();
@@ -233,6 +246,7 @@ function buildSetCard(set, words) {
   const missing = words.filter(word => !word.form).length;
   const usesArasaac = words.some(word => word.credit === "ARASAAC");
   const playable = words.length - missing >= settings.numberOfChoices;
+  const housesPlayable = getHouseWords(words).length >= 2;
 
   const thumbs = document.createElement("div");
   thumbs.className = "set-thumbs";
@@ -256,7 +270,8 @@ function buildSetCard(set, words) {
   const actions = document.createElement("div");
   actions.className = "set-actions";
 
-  actions.appendChild(makeButton("Spielen", "", () => startGame(set, words), !playable));
+  actions.appendChild(makeButton("Bild finden", "", () => startGame(set, words), !playable));
+  actions.appendChild(makeButton("Artikel-Häuser", "", () => startHouseGame(set, words), !housesPlayable));
   actions.appendChild(makeButton("Bearbeiten", "secondary", () => openEditor(set)));
   actions.appendChild(makeButton("Lernstand", "secondary", () => showStats(set, words)));
   actions.appendChild(makeButton("Exportieren", "secondary", () => exportSet(set, words)));
@@ -745,23 +760,26 @@ async function showStats(set, words) {
   statsWords = words;
   statsTitle.textContent = "Lernstand: " + set.name;
 
-  const stats = await getStats(words.map(word => word.id));
+  const stats = await getStats(getAllStatKeys(words));
 
-  const rows = words.map(word => {
-    const entry = stats[word.id];
+  const cell = entry => {
     const state = getLearningState(entry);
     const stateClass = state === "sicher" ? "state-sure" : state === "neu" ? "state-new" : "state-practice";
 
+    return "<td>" + (entry ? entry.firstTry : 0) + " von " + (entry ? entry.seen : 0) +
+      " <span class=\"state " + stateClass + "\">" + state + "</span></td>";
+  };
+
+  const rows = words.map(word => {
     return "<tr>" +
       "<td>" + escapeHtml(getDisplayName(word)) + "</td>" +
-      "<td>" + (entry ? entry.seen : 0) + "</td>" +
-      "<td>" + (entry ? entry.firstTry : 0) + "</td>" +
-      "<td><span class=\"state " + stateClass + "\">" + state + "</span></td>" +
+      cell(stats[word.id]) +
+      (HOUSE_FORMS.includes(word.form) ? cell(stats["artikel:" + word.id]) : "<td class=\"hint\">–</td>") +
       "</tr>";
   }).join("");
 
   statsTable.innerHTML = "<table class=\"stats\"><thead><tr>" +
-    "<th>Wort</th><th>gesucht</th><th>auf Anhieb richtig</th><th>Stand</th>" +
+    "<th>Wort</th><th>Bild finden</th><th>Artikel-Häuser</th>" +
     "</tr></thead><tbody>" + rows + "</tbody></table>";
 
   showScreen(statsScreen);
@@ -771,14 +789,26 @@ async function resetStatsOfSet() {
   if (!statsSet) return;
   if (!confirm("Lernstand für „" + statsSet.name + "“ zurücksetzen?")) return;
 
-  await resetStats(statsWords.map(word => word.id));
+  await resetStats(getAllStatKeys(statsWords));
   showStats(statsSet, statsWords);
 }
 
 /* ---------- Spiel ---------- */
 
+// Lernstand-Schlüssel: Wort-ID für "Bild finden", "artikel:<ID>" für Artikel-Häuser
+function getAllStatKeys(words) {
+  return words.flatMap(word => [word.id, "artikel:" + word.id]);
+}
+
+function setGameMode(mode) {
+  gameMode = mode;
+  pickGame.classList.toggle("hidden", mode !== "pick");
+  houseGame.classList.toggle("hidden", mode !== "houses");
+}
+
 function startGame(set, words) {
   unlockAudio();
+  setGameMode("pick");
 
   images.forEach(image => URL.revokeObjectURL(image.url));
 
@@ -813,6 +843,8 @@ function startGame(set, words) {
 
 function openSettings() {
   stopSpeaking();
+  stopHouseGame();
+  setGameMode("pick");
 
   answered = false;
   correctImage = null;

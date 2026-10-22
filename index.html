@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 4</title>
+  <title>Sprachverständnis-App – Version 5</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -18,7 +18,7 @@
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 4</div>
+    <div class="version">Version 5</div>
     <div class="score hidden" id="score"></div>
   </header>
 
@@ -27,9 +27,17 @@
       Höre gut zu und tippe auf das passende Bild.
     </div>
 
-    <div class="answer-word hidden" id="answerWord"></div>
+    <div id="pickGame">
+      <div class="answer-word hidden" id="answerWord"></div>
 
-    <section class="image-grid" id="imageGrid"></section>
+      <section class="image-grid" id="imageGrid"></section>
+    </div>
+
+    <div id="houseGame" class="hidden">
+      <div class="house-stage" id="houseStage"></div>
+      <div class="house-row" id="houseRow"></div>
+      <div class="house-summary hidden" id="houseSummary"></div>
+    </div>
   </main>
 
   <div class="settings-bar">
@@ -96,6 +104,15 @@
             <span class="genus-die">die</span> /
             <span class="genus-das">das</span> /
             <span class="genus-pl">die (Mehrzahl)</span> in Farbe.
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" id="housesArticleToggle" />
+          <span>
+            <strong>Artikel-Häuser: Artikel mitsprechen</strong><br />
+            An: Die App sagt „der Schal“, das Kind ordnet nach Gehör zu (leichter).
+            Aus: Die App sagt nur „Schal“, das Kind muss den Artikel wissen.
           </span>
         </label>
 
@@ -202,5 +219,6 @@
   <script src="js/speech.js"></script>
   <script src="js/celebration.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/houses.js"></script>
 </body>
 </html>
