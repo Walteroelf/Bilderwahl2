@@ -1314,93 +1314,14 @@ table.stats td {
   }
 }
 
-.celebration-piece {
-  position: absolute;
-  top: -30px;
+/* Feier-Animationen: eigene Ebene über dem ganzen Bildschirm, fängt keine Berührungen ab */
+.celebration-layer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 55;
   pointer-events: none;
-  z-index: 10;
-  animation-fill-mode: forwards;
-  animation-timing-function: linear;
-  opacity: 0.95;
-  user-select: none;
-}
-
-@keyframes fall-straight {
-  0% {
-    transform: translateY(-30px) rotate(0deg);
-  }
-
-  100% {
-    transform: translateY(120vh) rotate(720deg);
-  }
-}
-
-@keyframes fall-wiggle {
-  0% {
-    transform: translate(0, -30px) rotate(0deg);
-  }
-
-  25% {
-    transform: translate(25px, 25vh) rotate(180deg);
-  }
-
-  50% {
-    transform: translate(-20px, 55vh) rotate(360deg);
-  }
-
-  75% {
-    transform: translate(20px, 85vh) rotate(540deg);
-  }
-
-  100% {
-    transform: translate(0, 120vh) rotate(720deg);
-  }
-}
-
-@keyframes fall-spin {
-  0% {
-    transform: translateY(-30px) scale(0.6) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(55vh) scale(1.25) rotate(540deg);
-  }
-
-  100% {
-    transform: translateY(120vh) scale(0.8) rotate(1080deg);
-  }
-}
-
-@keyframes fall-bounce {
-  0% {
-    transform: translateY(-30px) scale(0.8);
-  }
-
-  40% {
-    transform: translateY(35vh) scale(1.25);
-  }
-
-  70% {
-    transform: translateY(70vh) scale(0.9);
-  }
-
-  100% {
-    transform: translateY(120vh) scale(1);
-  }
-}
-
-@keyframes fall-swing {
-  0% {
-    transform: translateX(0) translateY(-30px) rotate(-25deg);
-  }
-
-  50% {
-    transform: translateX(45px) translateY(55vh) rotate(25deg);
-  }
-
-  100% {
-    transform: translateX(-20px) translateY(120vh) rotate(-25deg);
-  }
 }
 
 @media (max-width: 900px) {

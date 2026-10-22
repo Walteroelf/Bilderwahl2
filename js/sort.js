@@ -244,6 +244,7 @@ function answerHouse(binId) {
 
     house.classList.remove("hint");
     house.classList.add("correct");
+    createCelebration(house, "stars", true);
     setTimeout(() => house.classList.remove("correct"), 700);
 
     houseStage.innerHTML = "";
