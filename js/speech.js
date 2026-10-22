@@ -1,9 +1,38 @@
 /*
-  Sprachausgabe: Computerstimme oder – optional – eigene Aufnahmen.
+  Sprachausgabe: vorab erzeugte Sätze mit der Thorsten-Stimme (js/voice.js),
+  sonst die Computerstimme des Geräts – und optional eigene Aufnahmen.
 */
 
 let availableVoices = [];
 let speechToken = 0;
+let bundledVoiceEnabled = true;
+
+const VOICE_FOLDER = "audio/thorsten/";
+
+function setBundledVoiceEnabled(enabled) {
+  bundledVoiceEnabled = enabled;
+}
+
+// Muss zu key() in scripts/generate-voice.py passen
+function voiceKey(text) {
+  return String(text).replace(/\s+/g, " ").trim().replace(/\.+$/, "").trim();
+}
+
+// Liefert die Dateien für einen Text – als Ganzes oder Satz für Satz.
+// Fehlt auch nur ein Satz, wird null geliefert (dann spricht das Gerät alles,
+// damit nicht zwei Stimmen in einer Äußerung gemischt werden).
+function findVoiceClips(text) {
+  if (!bundledVoiceEnabled || typeof VOICE_CLIPS === "undefined") return null;
+
+  const whole = VOICE_CLIPS[voiceKey(text)];
+  if (whole) return [whole];
+
+  const parts = (String(text).match(/[^.!?]+[.!?]*/g) || []).map(part => part.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+
+  const files = parts.map(part => VOICE_CLIPS[voiceKey(part)]);
+  return files.every(Boolean) ? files : null;
+}
 
 // Ein gemeinsames Audio-Element; iPad/Safari erlaubt Abspielen erst,
 // nachdem es einmal durch ein Tippen freigeschaltet wurde.
@@ -74,6 +103,17 @@ function createFinisher(onDone) {
 }
 
 function speak(text, onDone) {
+  const clips = findVoiceClips(text);
+
+  if (clips) {
+    playVoiceClips(clips, text, onDone);
+    return;
+  }
+
+  speakWithDevice(text, onDone);
+}
+
+function speakWithDevice(text, onDone) {
   stopAudioOnly();
   const finish = createFinisher(onDone);
 
@@ -114,6 +154,42 @@ function playRecording(blob, onDone) {
   recordingPlayer.onerror = () => setTimeout(finish, 250);
 
   recordingPlayer.play().catch(() => setTimeout(finish, 250));
+}
+
+// Spielt die Dateien nacheinander mit kurzer Pause ab
+function playVoiceClips(files, text, onDone) {
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  stopAudioOnly();
+
+  const token = speechToken + 1;
+  const finish = createFinisher(onDone);
+  let index = 0;
+
+  const playNext = () => {
+    if (token !== speechToken) return;
+
+    if (index >= files.length) {
+      setTimeout(finish, 250);
+      return;
+    }
+
+    recordingPlayer.src = VOICE_FOLDER + files[index] + ".m4a";
+    index++;
+
+    recordingPlayer.play().catch(fallback);
+  };
+
+  // Datei fehlt oder lässt sich nicht abspielen: Gerätestimme übernimmt
+  const fallback = () => {
+    if (token !== speechToken) return;
+    stopAudioOnly();
+    speakWithDevice(text, onDone);
+  };
+
+  recordingPlayer.onended = () => setTimeout(playNext, 200);
+  recordingPlayer.onerror = fallback;
+
+  playNext();
 }
 
 function stopAudioOnly() {

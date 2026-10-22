@@ -45,7 +45,8 @@ const defaultSettings = {
   calm: false,
   genusColors: true,
   recordings: false,
-  housesSayArticle: true
+  housesSayArticle: true,
+  bundledVoice: true
 };
 
 let settings = loadSettings();
@@ -103,6 +104,7 @@ const calmToggle = document.getElementById("calmToggle");
 const genusToggle = document.getElementById("genusToggle");
 const recordingsToggle = document.getElementById("recordingsToggle");
 const housesArticleToggle = document.getElementById("housesArticleToggle");
+const bundledVoiceToggle = document.getElementById("bundledVoiceToggle");
 
 const editorTitle = document.getElementById("editorTitle");
 const setNameInput = document.getElementById("setNameInput");
@@ -166,6 +168,7 @@ calmToggle.addEventListener("change", updateSettingsFromForm);
 genusToggle.addEventListener("change", updateSettingsFromForm);
 recordingsToggle.addEventListener("change", updateSettingsFromForm);
 housesArticleToggle.addEventListener("change", updateSettingsFromForm);
+bundledVoiceToggle.addEventListener("change", updateSettingsFromForm);
 
 newSetButton.addEventListener("click", () => openEditor(null));
 restoreFieldsButton.addEventListener("click", restoreHiddenFields);
@@ -204,6 +207,8 @@ function applySettingsToForm() {
   genusToggle.checked = settings.genusColors;
   recordingsToggle.checked = settings.recordings;
   housesArticleToggle.checked = settings.housesSayArticle;
+  bundledVoiceToggle.checked = settings.bundledVoice;
+  setBundledVoiceEnabled(settings.bundledVoice);
 }
 
 function updateSettingsFromForm() {
@@ -213,9 +218,11 @@ function updateSettingsFromForm() {
     calm: calmToggle.checked,
     genusColors: genusToggle.checked,
     recordings: recordingsToggle.checked,
-    housesSayArticle: housesArticleToggle.checked
+    housesSayArticle: housesArticleToggle.checked,
+    bundledVoice: bundledVoiceToggle.checked
   };
 
+  setBundledVoiceEnabled(settings.bundledVoice);
   saveSettings();
 }
 

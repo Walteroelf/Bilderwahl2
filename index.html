@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 7</title>
+  <title>Sprachverständnis-App – Version 8</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
@@ -12,13 +12,13 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#2563eb" />
 
-  <link rel="stylesheet" href="css/style.css?v=7" />
+  <link rel="stylesheet" href="css/style.css?v=8" />
 </head>
 
 <body>
   <header>
     <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 7</div>
+    <div class="version">Version 8</div>
     <div class="score hidden" id="score"></div>
   </header>
 
@@ -123,6 +123,15 @@
         </label>
 
         <label class="toggle">
+          <input type="checkbox" id="bundledVoiceToggle" />
+          <span>
+            <strong>Natürliche Stimme (Thorsten)</strong><br />
+            Die Wörter der mitgelieferten Wortfelder spricht eine vorab aufgenommene, natürliche Stimme.
+            Aus: Es spricht immer die Stimme des Geräts.
+          </span>
+        </label>
+
+        <label class="toggle">
           <input type="checkbox" id="recordingsToggle" />
           <span>
             <strong>Eigene Sprachaufnahmen</strong><br />
@@ -138,6 +147,10 @@
       </p>
 
       <p class="credit" id="homeCredit"></p>
+      <p class="credit">
+        Stimme: <a href="https://www.thorsten-voice.de" target="_blank" rel="noopener">Thorsten-Voice</a>
+        von Thorsten Müller (CC0), erzeugt mit <a href="https://github.com/OHF-Voice/piper1-gpl" target="_blank" rel="noopener">Piper</a>.
+      </p>
 
       <div class="selection-bar" id="selectionBar">
         <span id="selectionInfo">Noch kein Wortfeld ausgewählt</span>
@@ -241,12 +254,13 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=7"></script>
-  <script src="js/wordfields.js?v=7"></script>
-  <script src="js/db.js?v=7"></script>
-  <script src="js/speech.js?v=7"></script>
-  <script src="js/celebration.js?v=7"></script>
-  <script src="js/app.js?v=7"></script>
-  <script src="js/houses.js?v=7"></script>
+  <script src="js/words.js?v=8"></script>
+  <script src="js/wordfields.js?v=8"></script>
+  <script src="js/voice.js?v=8"></script>
+  <script src="js/db.js?v=8"></script>
+  <script src="js/speech.js?v=8"></script>
+  <script src="js/celebration.js?v=8"></script>
+  <script src="js/app.js?v=8"></script>
+  <script src="js/houses.js?v=8"></script>
 </body>
 </html>
