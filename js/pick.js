@@ -25,6 +25,7 @@ const pickExercise = {
 
     imageGrid.innerHTML = "";
     imageGrid.style.setProperty("--columns", pickColumns);
+    imageGrid.dataset.columns = pickColumns;
 
     // Ablenker aus allen Wörtern der Auswahl, nicht nur aus der Runde
     const distractors = shuffle(session.items.filter(other => other !== item && other.noun !== item.noun))
@@ -85,13 +86,17 @@ function renderPickCards() {
 function checkPickAnswer(selected, selectedCard) {
   const target = session.current;
   if (pickAnswered || !target) return;
-  if (selectedCard.classList.contains("ruled-out")) return;
+  if (selectedCard.classList.contains("ruled-out") || selectedCard.classList.contains("faded")) return;
 
   if (selected === target) {
     pickAnswered = true;
     recordItemResult(!session.mistake);
 
-    imageGrid.querySelectorAll(".image-card").forEach(card => card.classList.remove("hint"));
+    // Alle anderen Bilder treten zurück, nur das richtige bleibt stehen
+    imageGrid.querySelectorAll(".image-card").forEach(card => {
+      card.classList.remove("hint");
+      if (card !== selectedCard) card.classList.add("faded");
+    });
     selectedCard.classList.add("correct");
 
     const praise = pickPraise();

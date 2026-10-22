@@ -175,7 +175,9 @@ function updateSessionScore() {
     return;
   }
 
-  scoreDisplay.textContent = "Beim ersten Versuch richtig: " + session.firstTry + " von " + session.done;
+  // Auf schmalen Bildschirmen wird die Beschriftung ausgeblendet (nur "✓ 3 von 4")
+  scoreDisplay.innerHTML = "<span class=\"score-label\">Beim ersten Versuch richtig: </span>" +
+    "<span class=\"score-short\" aria-hidden=\"true\">✓ </span>" + session.firstTry + " von " + session.done;
   scoreDisplay.classList.remove("hidden");
 }
 

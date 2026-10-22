@@ -3,23 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sprachverständnis-App – Version 16</title>
+  <title>Bilderwahl</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-180.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
-  <meta name="theme-color" content="#2563eb" />
+  <meta name="theme-color" content="#3d7ab8" />
 
-  <link rel="stylesheet" href="css/style.css?v=16" />
+  <link rel="stylesheet" href="css/style.css?v=17" />
 </head>
 
 <body>
   <header>
-    <h1>Sprachverständnis-App</h1>
-    <div class="version">Version 16</div>
-    <div class="score hidden" id="score"></div>
+    <!-- Markise wie im Kirmes-Kiosk, in ruhigem Blau -->
+    <div class="markise" aria-hidden="true"></div>
+    <div class="kopf">
+      <h1 class="schild">Bilderwahl</h1>
+      <span class="platz"></span>
+      <span class="score hidden" id="score"></span>
+      <!-- Zahnrad: in jeder Übung jederzeit zu den Einstellungen (mit Zahlen-Code) -->
+      <button class="gear-button hidden" id="gearButton" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" fill-opacity=".15"/></svg>
+      </button>
+    </div>
   </header>
 
   <main>
@@ -97,13 +105,12 @@
     <div class="game-summary hidden" id="gameSummary"></div>
   </main>
 
-  <!-- Zahnrad: in jeder Übung jederzeit zu den Einstellungen (mit Zahlen-Code) -->
-  <button class="gear-button hidden" id="gearButton" aria-label="Einstellungen (Lehrkraft)" title="Einstellungen">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" fill-opacity=".15"/></svg>
-  </button>
 
   <div class="repeat-bar">
-    <button class="hidden" id="repeatButton">Noch einmal hören</button>
+    <button class="hidden" id="repeatButton" aria-label="Noch einmal hören">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" fill-opacity=".15"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+      <span class="repeat-text">Noch einmal hören</span>
+    </button>
   </div>
 
   <div class="next-bar">
@@ -431,6 +438,8 @@
         </div>
             </div>
 
+      <p class="credit">Bilderwahl · <span class="version">Version 17</span></p>
+
       <div class="button-row">
         <button id="settingsContinueButton">Weiter üben</button>
         <button id="settingsEndButton" class="secondary">Übung beenden</button>
@@ -439,21 +448,21 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=16"></script>
-  <script src="js/wordfields.js?v=16"></script>
-  <script src="js/voice.js?v=16"></script>
-  <script src="js/db.js?v=16"></script>
-  <script src="js/speech.js?v=16"></script>
-  <script src="js/celebration.js?v=16"></script>
-  <script src="js/app.js?v=16"></script>
-  <script src="js/session.js?v=16"></script>
-  <script src="js/pick.js?v=16"></script>
-  <script src="js/sort.js?v=16"></script>
-  <script src="js/yesno.js?v=16"></script>
-  <script src="js/memory.js?v=16"></script>
-  <script src="js/naming.js?v=16"></script>
-  <script src="js/scratch.js?v=16"></script>
-  <script src="js/teacher.js?v=16"></script>
-  <script src="js/offline.js?v=16"></script>
+  <script src="js/words.js?v=17"></script>
+  <script src="js/wordfields.js?v=17"></script>
+  <script src="js/voice.js?v=17"></script>
+  <script src="js/db.js?v=17"></script>
+  <script src="js/speech.js?v=17"></script>
+  <script src="js/celebration.js?v=17"></script>
+  <script src="js/app.js?v=17"></script>
+  <script src="js/session.js?v=17"></script>
+  <script src="js/pick.js?v=17"></script>
+  <script src="js/sort.js?v=17"></script>
+  <script src="js/yesno.js?v=17"></script>
+  <script src="js/memory.js?v=17"></script>
+  <script src="js/naming.js?v=17"></script>
+  <script src="js/scratch.js?v=17"></script>
+  <script src="js/teacher.js?v=17"></script>
+  <script src="js/offline.js?v=17"></script>
 </body>
 </html>

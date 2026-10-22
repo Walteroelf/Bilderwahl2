@@ -8,7 +8,7 @@
     gespeichert, oder alle auf einmal über "Für Offline-Nutzung laden".
 */
 
-const VERSION = "16";
+const VERSION = "17";
 const APP_CACHE = "bilderwahl-app-" + VERSION;
 const MEDIA_CACHE = "bilderwahl-medien";
 
@@ -18,6 +18,9 @@ const APP_FILES = [
   "manifest.webmanifest",
   "icon-180.png",
   "icon-512.png",
+  "schriften/andika-400.woff2",
+  "schriften/andika-700.woff2",
+  "schriften/grandstander.woff2",
   "css/style.css?v=" + VERSION,
   "js/words.js?v=" + VERSION,
   "js/wordfields.js?v=" + VERSION,
