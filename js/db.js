@@ -104,6 +104,7 @@ async function saveSet(set, words) {
       image: word.image,
       audio: word.audio || null,
       credit: word.credit || null,
+      third: word.third || null,
       order: index
     });
   });
@@ -181,6 +182,14 @@ async function recordResult(wordId, result) {
     store.put(entry);
   };
 
+  return transactionDone(transaction);
+}
+
+// Löscht alle Einträge, deren Schlüssel so beginnt (z. B. alles eines Kinderprofils)
+async function deleteStatsWithPrefix(prefix) {
+  const db = await openDatabase();
+  const transaction = db.transaction("stats", "readwrite");
+  transaction.objectStore("stats").delete(IDBKeyRange.bound(prefix, prefix + "\uffff"));
   return transactionDone(transaction);
 }
 

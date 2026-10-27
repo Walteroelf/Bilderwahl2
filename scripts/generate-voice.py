@@ -20,6 +20,7 @@ espeak_dir = os.environ.get("ESPEAK_DATA_DIR")
 
 src = open(os.path.join(app, "js/wordfields.js"), encoding="utf8").read()
 words = re.findall(r'\{ noun: "([^"]+)", form: "(der|die|das|pl)", picto: \d+ \}', src)
+verbs = re.findall(r'\{ noun: "([^"]+)", form: "verb", third: "([^"]+)", picto: \d+ \}', src)
 
 # Korrigierte Aussprache einzelner Wörter (Lautschrift), siehe scripts/aussprache.json
 pronunciations = {
@@ -68,6 +69,16 @@ texts.update([
 
 # "Nicht ganz. Du schaffst das." wird auch in Teilen gebraucht
 texts.update(["Nicht ganz.", "Du schaffst das."])
+
+# Tätigkeiten (siehe buildQuestionForImage & Co. in js/words.js)
+for verb, third in verbs:
+    texts.update([
+        "Wer " + third + "?",
+        "Hier " + third + " jemand.",
+        third[0].upper() + third[1:] + " hier jemand?",
+        verb,
+    ])
+texts.update(["Was passiert hier?"])
 
 out_dir = os.path.join(app, "audio/thorsten")
 os.makedirs(out_dir, exist_ok=True)

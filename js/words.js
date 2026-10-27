@@ -228,26 +228,50 @@ function capitalize(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+/*
+  Satzbausteine. Tätigkeiten (form "verb") haben statt eines Artikels die
+  er/sie/es-Form in "third": schlafen → "Wer schläft?", "Hier schläft jemand."
+*/
+
+function isVerb(word) {
+  return word.form === "verb";
+}
+
 function getArticle(word) {
-  if (!word.form) return "";
+  if (!word.form || isVerb(word)) return "";
   return word.form === "pl" ? "die" : word.form;
 }
 
 function getDisplayName(word) {
-  if (!word.form) return word.noun;
+  if (!word.form || isVerb(word)) return word.noun;
   return getArticle(word) + " " + word.noun;
 }
 
+// "Wo ist der Schal?" / "Wo sind die Strümpfe?" / "Wer schläft?"
 function buildQuestionForImage(word) {
+  if (isVerb(word)) return "Wer " + word.third + "?";
   return (word.form === "pl" ? "Wo sind " : "Wo ist ") + getDisplayName(word) + "?";
 }
 
-// "Das ist der Schal." / "Das sind die Strümpfe."
+// "Das ist der Schal." / "Das sind die Strümpfe." / "Hier schläft jemand."
 function buildModelSentence(word) {
+  if (isVerb(word)) return "Hier " + word.third + " jemand.";
   return (word.form === "pl" ? "Das sind " : "Das ist ") + getDisplayName(word) + ".";
 }
 
-// "Hier ist der Schal." / "Hier sind die Strümpfe."
+// "Hier ist der Schal." / "Hier sind die Strümpfe." / "Hier schläft jemand."
 function buildHintSentence(word) {
+  if (isVerb(word)) return "Hier " + word.third + " jemand.";
   return (word.form === "pl" ? "Hier sind " : "Hier ist ") + getDisplayName(word) + ".";
+}
+
+// Ja-oder-Nein-Frage: "Ist das der Schal?" / "Sind das die Strümpfe?" / "Schläft hier jemand?"
+function buildYesNoQuestion(word) {
+  if (isVerb(word)) return capitalize(word.third) + " hier jemand?";
+  return (word.form === "pl" ? "Sind das " : "Ist das ") + getDisplayName(word) + "?";
+}
+
+// Frage beim Benennen
+function buildNamingQuestion(word) {
+  return isVerb(word) ? "Was passiert hier?" : "Was ist das?";
 }

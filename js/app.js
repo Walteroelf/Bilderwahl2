@@ -42,6 +42,7 @@ const SETTINGS_KEY = "bilderwahl-einstellungen";
 const defaultSettings = {
   numberOfChoices: 2,
   roundLength: 10,
+  distractors: "gemischt",
   errorless: true,
   calm: false,
   genusColors: true,
@@ -113,6 +114,7 @@ const importSetButton = document.getElementById("importSetButton");
 const importInput = document.getElementById("importInput");
 
 const imageCountSelect = document.getElementById("imageCountSelect");
+const distractorSelect = document.getElementById("distractorSelect");
 const roundLengthSelect = document.getElementById("roundLengthSelect");
 const errorlessToggle = document.getElementById("errorlessToggle");
 const calmToggle = document.getElementById("calmToggle");
@@ -134,6 +136,8 @@ const cancelEditButton = document.getElementById("cancelEditButton");
 
 const statsTitle = document.getElementById("statsTitle");
 const statsTable = document.getElementById("statsTable");
+const statsProfileRow = document.getElementById("statsProfileRow");
+const statsProfileSelect = document.getElementById("statsProfileSelect");
 const statsBackButton = document.getElementById("statsBackButton");
 const statsResetButton = document.getElementById("statsResetButton");
 
@@ -166,6 +170,7 @@ requestPersistentStorage();
 document.addEventListener("DOMContentLoaded", showHome);
 
 imageCountSelect.addEventListener("change", updateSettingsFromForm);
+distractorSelect.addEventListener("change", updateSettingsFromForm);
 roundLengthSelect.addEventListener("change", updateSettingsFromForm);
 errorlessToggle.addEventListener("change", updateSettingsFromForm);
 calmToggle.addEventListener("change", updateSettingsFromForm);
@@ -201,6 +206,10 @@ wordRows.addEventListener("change", handleWordRowChange);
 
 statsBackButton.addEventListener("click", () => showField(statsSet.id));
 statsResetButton.addEventListener("click", resetStatsOfSet);
+statsProfileSelect.addEventListener("change", () => {
+  statsProfileId = statsProfileSelect.value || null;
+  showStats(statsSet, statsWords, true);
+});
 
 repeatButton.addEventListener("click", () => {
   if (session.game) session.game.repeat();
@@ -209,6 +218,7 @@ nextButton.addEventListener("click", () => nextItem());
 
 function applySettingsToForm() {
   imageCountSelect.value = String(settings.numberOfChoices);
+  distractorSelect.value = settings.distractors;
   roundLengthSelect.value = String(settings.roundLength);
   errorlessToggle.checked = settings.errorless;
   calmToggle.checked = settings.calm;
@@ -225,6 +235,7 @@ function applySettingsToForm() {
 function updateSettingsFromForm() {
   settings = {
     numberOfChoices: Number(imageCountSelect.value),
+    distractors: distractorSelect.value,
     roundLength: Number(roundLengthSelect.value),
     errorless: errorlessToggle.checked,
     calm: calmToggle.checked,
@@ -345,7 +356,8 @@ async function addWordFieldAsSet(field) {
       form: word.form,
       image: await response.blob(),
       audio: null,
-      credit: "ARASAAC"
+      credit: "ARASAAC",
+      third: word.third || null
     };
   }));
 
@@ -566,7 +578,9 @@ async function showField(setId) {
 
     const caption = document.createElement("figcaption");
 
-    if (word.form) {
+    if (isVerb(word)) {
+      caption.textContent = word.noun;
+    } else if (word.form) {
       caption.innerHTML = "<span class=\"genus-" + word.form + "\">" + escapeHtml(getArticle(word)) + "</span> " +
         escapeHtml(word.noun);
     } else {
@@ -653,6 +667,7 @@ function showExercise() {
   exerciseSet = { id: "auswahl", name: items.map(item => item.set.name).join(", ") };
 
   exerciseInfo.textContent = exerciseSet.name + " · " + exerciseWords.length + " Wörter";
+  renderProfileChoice();
 
   const withArticle = exerciseWords.filter(word => word.form).length;
   const houseCount = getHouseWords(exerciseWords).length;
@@ -672,7 +687,9 @@ function showExercise() {
 
   setExerciseState(exerciseHouses, exerciseHousesNote, houseCount >= 2,
     Math.min(getRoundLength() || houseCount, houseCount) + " Bilder zum Einsortieren",
-    "Mindestens 2 Wörter mit Artikel nötig.");
+    exerciseWords.length > 0 && exerciseWords.every(isVerb)
+      ? "Tätigkeiten haben keinen Artikel."
+      : "Mindestens 2 Wörter mit Artikel nötig.");
 
   setExerciseState(exerciseSort, exerciseSortNote, items.length >= 2 && items.length <= 4,
     items.length + " Häuser: " + items.map(item => item.set.name).join(", "),
@@ -703,7 +720,8 @@ async function openEditor(set) {
     image: word.image,
     imageUrl: URL.createObjectURL(word.image),
     audio: word.audio || null,
-    credit: word.credit || null
+    credit: word.credit || null,
+    third: word.third || null
   }));
 
   editorTitle.textContent = set ? "Wortfeld bearbeiten" : "Neues Wortfeld";
@@ -850,8 +868,12 @@ function renderWordRows() {
       "<img src=\"" + word.imageUrl + "\" alt=\"\" />" +
       "<div class=\"word-fields\">" +
       "<div class=\"word-inputs\">" +
-      buildFormSelect(word, index) +
-      "<input type=\"text\" class=\"text-input noun-input\" value=\"" + escapeHtml(word.noun) + "\" aria-label=\"Wort\" />" +
+      (isVerb(word)
+        ? "<span class=\"verb-tag\">Tätigkeit</span>" +
+          "<input type=\"text\" class=\"text-input noun-input\" value=\"" + escapeHtml(word.noun) + "\" aria-label=\"Tätigkeit (Grundform)\" />" +
+          "<input type=\"text\" class=\"text-input third-input\" value=\"" + escapeHtml(word.third || "") + "\" aria-label=\"er/sie-Form, z. B. schläft\" placeholder=\"er/sie …\" />"
+        : buildFormSelect(word, index) +
+          "<input type=\"text\" class=\"text-input noun-input\" value=\"" + escapeHtml(word.noun) + "\" aria-label=\"Wort\" />") +
       "</div>" +
       "<div class=\"word-question\">" + (word.form
         ? escapeHtml(buildQuestionForImage(word))
@@ -910,10 +932,18 @@ function handleWordRowChange(event) {
   }
 
   if (event.target.classList.contains("noun-input")) {
-    // Eingabe wie "der Schal" oder "Strümpfe" wird wie ein Dateiname gelesen
-    const parsed = parseWordText(event.target.value);
-    word.noun = parsed.noun;
-    if (parsed.form) word.form = parsed.form;
+    if (isVerb(word)) {
+      word.noun = event.target.value.trim();
+    } else {
+      // Eingabe wie "der Schal" oder "Strümpfe" wird wie ein Dateiname gelesen
+      const parsed = parseWordText(event.target.value);
+      word.noun = parsed.noun;
+      if (parsed.form) word.form = parsed.form;
+    }
+  }
+
+  if (event.target.classList.contains("third-input")) {
+    word.third = event.target.value.trim();
   }
 
   fileInfo.textContent = "";
@@ -1030,7 +1060,8 @@ async function exportSet(set, words) {
       form: word.form,
       image: await blobToDataUrl(word.image),
       audio: word.audio ? await blobToDataUrl(word.audio) : null,
-      credit: word.credit || null
+      credit: word.credit || null,
+      third: word.third || null
     })))
   };
 
@@ -1061,7 +1092,8 @@ async function importSetFromFile(event) {
     const words = await Promise.all(data.words.slice(0, MAX_WORDS_PER_SET).map(async word => ({
       id: createId(),
       noun: String(word.noun || ""),
-      form: ["der", "die", "das", "pl"].includes(word.form) ? word.form : null,
+      form: ["der", "die", "das", "pl", "verb"].includes(word.form) ? word.form : null,
+      third: word.form === "verb" ? String(word.third || "") : null,
       image: await dataUrlToBlob(word.image),
       audio: word.audio ? await dataUrlToBlob(word.audio) : null,
       credit: word.credit === "ARASAAC" ? "ARASAAC" : null
@@ -1076,12 +1108,25 @@ async function importSetFromFile(event) {
 
 /* ---------- Lernstand ---------- */
 
-async function showStats(set, words) {
+// Wessen Lernstand angezeigt wird (null = ohne Profil)
+let statsProfileId = null;
+
+// keepProfile: beim Umschalten im Auswahlfeld die Wahl behalten
+async function showStats(set, words, keepProfile = false) {
   statsSet = set;
   statsWords = words;
   statsTitle.textContent = "Lernstand: " + set.name;
 
-  const stats = await getStats(getAllStatKeys(words));
+  // Mit Kinderprofilen: Auswahl, wessen Lernstand gezeigt wird – zuerst das zuletzt übende Kind
+  if (!keepProfile || !getProfile(statsProfileId)) statsProfileId = keepProfile ? statsProfileId : activeProfileId;
+  if (!getProfile(statsProfileId)) statsProfileId = null;
+
+  statsProfileRow.classList.toggle("hidden", profiles.length === 0);
+  statsProfileSelect.innerHTML = "<option value=\"\">Ohne Profil</option>" +
+    profiles.map(profile => "<option value=\"" + profile.id + "\">" + escapeHtml(getProfileLabel(profile)) + "</option>").join("");
+  statsProfileSelect.value = statsProfileId || "";
+
+  const stats = await getStats(getAllStatKeys(words, statsProfileId));
 
   const cell = entry => {
     const state = getLearningState(entry);
@@ -1097,7 +1142,9 @@ async function showStats(set, words) {
     return "<tr>" +
       "<td>" + escapeHtml(getDisplayName(word)) + "</td>" +
       STAT_EXERCISES.map(exercise =>
-        word.form ? cell(stats[statKey(exercise.prefix, word.id)]) : "<td class=\"hint\">–</td>"
+        isExerciseForWord(exercise, word)
+          ? cell(stats[statKey(exercise.prefix, word.id, statsProfileId)])
+          : "<td class=\"hint\">–</td>"
       ).join("") +
       "</tr>";
   }).join("");
@@ -1111,10 +1158,11 @@ async function showStats(set, words) {
 
 async function resetStatsOfSet() {
   if (!statsSet) return;
-  if (!confirm("Lernstand für „" + statsSet.name + "“ zurücksetzen?")) return;
+  const who = statsProfileId ? " von " + getProfileLabel(getProfile(statsProfileId)) : "";
+  if (!confirm("Lernstand für „" + statsSet.name + "“" + who + " zurücksetzen?")) return;
 
-  await resetStats(getAllStatKeys(statsWords));
-  showStats(statsSet, statsWords);
+  await resetStats(getAllStatKeys(statsWords, statsProfileId));
+  showStats(statsSet, statsWords, true);
 }
 
 /* ---------- Übungen (die Übungen selbst stehen in session.js, pick.js usw.) ---------- */
@@ -1127,8 +1175,15 @@ const STAT_EXERCISES = [
   { prefix: "benennen", name: "Benennen" }
 ];
 
-function getAllStatKeys(words) {
-  return words.flatMap(word => STAT_EXERCISES.map(exercise => statKey(exercise.prefix, word.id)));
+function getAllStatKeys(words, profileId = null) {
+  return words.flatMap(word => STAT_EXERCISES.map(exercise => statKey(exercise.prefix, word.id, profileId)));
+}
+
+// Artikel gibt es nur bei Nomen mit der/die/das/Mehrzahl, nicht bei Tätigkeiten
+function isExerciseForWord(exercise, word) {
+  if (!word.form) return false;
+  if (exercise.prefix === "artikel") return HOUSE_FORMS.includes(word.form);
+  return true;
 }
 
 function formatDue(due) {
@@ -1142,6 +1197,7 @@ function formatDue(due) {
 function backToOverview() {
   stopActiveGame();
   gearButton.classList.add("hidden");
+  profileBadge.classList.add("hidden");
 
   instruction.textContent = "Höre gut zu und tippe auf das passende Bild.";
   answerWord.classList.add("hidden");

@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#3d7ab8" />
 
-  <link rel="stylesheet" href="css/style.css?v=18" />
+  <link rel="stylesheet" href="css/style.css?v=19" />
 </head>
 
 <body>
@@ -23,13 +23,14 @@
     <div class="curtain-valance"></div>
     <div class="curtain-sign">Bilderwahl</div>
   </div>
-  <script src="js/curtain.js?v=18"></script>
+  <script src="js/curtain.js?v=19"></script>
 
   <header>
     <!-- Markise wie im Kirmes-Kiosk, in ruhigem Blau -->
     <div class="markise" aria-hidden="true"></div>
     <div class="kopf">
       <h1 class="schild">Bilderwahl</h1>
+      <span class="profile-badge hidden" id="profileBadge"></span>
       <span class="platz"></span>
       <span class="score hidden" id="score"></span>
       <!-- Zahnrad: in jeder Übung jederzeit zu den Einstellungen (mit Zahlen-Code) -->
@@ -195,6 +196,11 @@
     <div class="modal">
       <h2>Welche Übung?</h2>
       <p class="hint" id="exerciseInfo"></p>
+
+      <div class="who-practices hidden" id="whoPractices">
+        <h3 class="exercise-group">Wer übt?</h3>
+        <div class="profile-choice" id="profileChoice"></div>
+      </div>
       <h3 class="exercise-group">Verstehen</h3>
       <div class="exercise-list">
         <button class="exercise-card" id="exercisePick">
@@ -302,6 +308,10 @@
         (Fach 2 nach 1 Tag, Fach 3 nach 3 Tagen, Fach 4 nach 7, Fach 5 nach 14 Tagen).
         Ein Fehler → zurück in Fach 1.
       </p>
+      <div class="hidden" id="statsProfileRow">
+        <label for="statsProfileSelect"><strong>Lernstand von:</strong></label>
+        <select id="statsProfileSelect"></select>
+      </div>
       <div id="statsTable"></div>
       <div class="button-row">
         <button id="statsBackButton">Zurück</button>
@@ -334,6 +344,18 @@
     <div class="modal">
       <h2>Einstellungen</h2>
       <div class="settings-box">
+        <div class="settings-group" id="profilesGroup">
+          <strong>Kinder</strong>
+          <p class="hint">
+            Jedes Kind übt mit seinem Tier – dann gelten Lernstand und Wiederholung je Kind.
+            Ohne Kinder gibt es einen gemeinsamen Lernstand für dieses Gerät.
+          </p>
+          <div class="profile-list" id="profileList"></div>
+          <p class="hint" id="profileAddHint">Neues Kind anlegen: Kürzel eintragen (freiwillig), dann ein Tier antippen.</p>
+          <input type="text" class="text-input" id="profileLabelInput" maxlength="12" placeholder="Kürzel, z. B. Initialen (freiwillig)" />
+          <div class="animal-picker" id="animalPicker"></div>
+        </div>
+
 
         <label for="roundLengthSelect">
           <strong>Aufgaben pro Übung:</strong>
@@ -360,6 +382,16 @@
           <option value="2">2 Bilder</option>
           <option value="3">3 Bilder</option>
           <option value="4">4 Bilder</option>
+        </select>
+
+        <label for="distractorSelect">
+          <strong>Ablenker (Bild finden, Ja oder Nein):</strong>
+        </label>
+
+        <select id="distractorSelect">
+          <option value="leicht">Leicht – aus anderen Wortfeldern (z. B. Apfel neben Bus)</option>
+          <option value="gemischt">Gemischt – aus allen ausgewählten Wortfeldern</option>
+          <option value="schwer">Schwer – aus demselben Wortfeld (z. B. Apfel neben Birne)</option>
         </select>
 
         <label class="toggle">
@@ -452,7 +484,7 @@
         </div>
             </div>
 
-      <p class="credit">Bilderwahl · <span class="version">Version 18</span></p>
+      <p class="credit">Bilderwahl · <span class="version">Version 19</span></p>
 
       <div class="button-row">
         <button id="settingsContinueButton">Weiter üben</button>
@@ -462,21 +494,22 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=18"></script>
-  <script src="js/wordfields.js?v=18"></script>
-  <script src="js/voice.js?v=18"></script>
-  <script src="js/db.js?v=18"></script>
-  <script src="js/speech.js?v=18"></script>
-  <script src="js/celebration.js?v=18"></script>
-  <script src="js/app.js?v=18"></script>
-  <script src="js/session.js?v=18"></script>
-  <script src="js/pick.js?v=18"></script>
-  <script src="js/sort.js?v=18"></script>
-  <script src="js/yesno.js?v=18"></script>
-  <script src="js/memory.js?v=18"></script>
-  <script src="js/naming.js?v=18"></script>
-  <script src="js/scratch.js?v=18"></script>
-  <script src="js/teacher.js?v=18"></script>
-  <script src="js/offline.js?v=18"></script>
+  <script src="js/words.js?v=19"></script>
+  <script src="js/wordfields.js?v=19"></script>
+  <script src="js/voice.js?v=19"></script>
+  <script src="js/db.js?v=19"></script>
+  <script src="js/speech.js?v=19"></script>
+  <script src="js/celebration.js?v=19"></script>
+  <script src="js/profiles.js?v=19"></script>
+  <script src="js/app.js?v=19"></script>
+  <script src="js/session.js?v=19"></script>
+  <script src="js/pick.js?v=19"></script>
+  <script src="js/sort.js?v=19"></script>
+  <script src="js/yesno.js?v=19"></script>
+  <script src="js/memory.js?v=19"></script>
+  <script src="js/naming.js?v=19"></script>
+  <script src="js/scratch.js?v=19"></script>
+  <script src="js/teacher.js?v=19"></script>
+  <script src="js/offline.js?v=19"></script>
 </body>
 </html>

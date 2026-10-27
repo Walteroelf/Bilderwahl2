@@ -171,6 +171,24 @@ header {
   display: none;
 }
 
+/* Tier des übenden Kindes im Kopf */
+.profile-badge {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 3px;
+  border: 3px solid var(--holz);
+  border-radius: 50%;
+  background: var(--teller);
+}
+
+.profile-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 /* ---------- Runde Knöpfe (Zahnrad) ---------- */
 
 .gear-button,
@@ -897,6 +915,98 @@ button.exercise-card {
   color: var(--muted);
 }
 
+/* Übungsauswahl: "Wer übt?" */
+.profile-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0 4px;
+}
+
+button.profile-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 4px 12px 4px 4px;
+  font-size: 16px;
+  background: var(--tresen);
+  color: var(--holz);
+  border-width: 3px;
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--holz);
+}
+
+button.profile-button img {
+  width: 36px;
+  height: 36px;
+  padding: 2px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: var(--teller);
+}
+
+button.profile-button:not(:has(img)) {
+  padding-left: 14px;
+}
+
+button.profile-button.active {
+  background: var(--senf);
+  color: var(--senf-text);
+}
+
+/* Einstellungen → Kinder */
+.profile-list {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 2px solid var(--linie);
+  border-radius: 14px;
+}
+
+.profile-row .profile-animal {
+  width: 40px;
+  height: 40px;
+  padding: 2px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: var(--teller);
+}
+
+.profile-label {
+  flex: 1;
+  font-weight: 700;
+}
+
+.animal-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+  gap: 8px;
+}
+
+button.animal-button {
+  min-height: 0;
+  aspect-ratio: 1;
+  padding: 4px;
+  background: var(--teller);
+  border-width: 3px;
+  border-radius: 14px;
+  box-shadow: 0 3px 0 var(--holz);
+}
+
+button.animal-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 /* ---------- Wortfeld bearbeiten ---------- */
 
 .word-rows {
@@ -966,6 +1076,16 @@ button.exercise-card {
 
 .remove-word {
   flex-shrink: 0;
+}
+
+.verb-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  border: 3px solid var(--linie);
+  border-radius: 12px;
 }
 
 select.form-select {

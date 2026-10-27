@@ -71,7 +71,7 @@ const scratchExercise = {
     if (scratchRevealed) {
       speak(buildModelSentence(item));
     } else if (scratchAsked) {
-      speak("Was ist das?");
+      speak(buildNamingQuestion(item));
     } else {
       speak("Rubbel das Bild frei!");
     }
@@ -221,8 +221,8 @@ function checkScratchProgress() {
 
   if (!scratchAsked && progress >= askAt) {
     scratchAsked = true;
-    instruction.textContent = "Was ist das?";
-    speak("Was ist das?");
+    instruction.textContent = buildNamingQuestion(session.current);
+    speak(buildNamingQuestion(session.current));
   }
 }
 

@@ -27,9 +27,8 @@ const pickExercise = {
     imageGrid.style.setProperty("--columns", pickColumns);
     imageGrid.dataset.columns = pickColumns;
 
-    // Ablenker aus allen Wörtern der Auswahl, nicht nur aus der Runde
-    const distractors = shuffle(session.items.filter(other => other !== item && other.noun !== item.noun))
-      .slice(0, pickColumns - 1);
+    // Ablenker je nach Einstellung (leicht / gemischt / schwer), siehe js/session.js
+    const distractors = pickDistractors(item, pickColumns - 1);
 
     pickChoices = shuffle([item, ...distractors]);
     renderPickCards();

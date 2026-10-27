@@ -8,7 +8,7 @@
     gespeichert, oder alle auf einmal über "Für Offline-Nutzung laden".
 */
 
-const VERSION = "18";
+const VERSION = "19";
 const APP_CACHE = "bilderwahl-app-" + VERSION;
 const MEDIA_CACHE = "bilderwahl-medien";
 
@@ -27,6 +27,7 @@ const APP_FILES = [
   "js/wordfields.js?v=" + VERSION,
   "js/voice.js?v=" + VERSION,
   "js/db.js?v=" + VERSION,
+  "js/profiles.js?v=" + VERSION,
   "js/speech.js?v=" + VERSION,
   "js/celebration.js?v=" + VERSION,
   "js/app.js?v=" + VERSION,

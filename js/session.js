@@ -32,9 +32,10 @@ const session = {
   urls: []
 };
 
-// Schlüssel im Lernstand: "Bild finden" nutzt aus älteren Versionen die reine Wort-ID
-function statKey(prefix, wordId) {
-  return prefix ? prefix + ":" + wordId : wordId;
+// Schlüssel im Lernstand: "Bild finden" nutzt aus älteren Versionen die reine Wort-ID.
+// Mit Kinderprofil steht "kind:<ID>:" davor (siehe js/profiles.js).
+function statKey(prefix, wordId, profileId = activeProfileId) {
+  return profileKey(profileId, prefix ? prefix + ":" + wordId : wordId);
 }
 
 // Bilder der Wörter als URLs bereitstellen (werden beim Beenden freigegeben)
@@ -48,6 +49,7 @@ function prepareItems(words) {
       setId: word.setId,
       noun: word.noun,
       form: word.form,
+      third: word.third || null,
       audio: word.audio || null,
       url: url
     };
@@ -119,6 +121,7 @@ async function startSession(game, set, words, options) {
   nextButton.classList.add("hidden");
   repeatButton.classList.remove("hidden");
   gearButton.classList.remove("hidden");
+  updateProfileBadge();
   scoreDisplay.classList.add("hidden");
   answerWord.classList.add("hidden");
 
@@ -234,7 +237,7 @@ function pickWrongMessage() {
 }
 
 function showAnswerWord(word) {
-  if (settings.genusColors && word.form) {
+  if (settings.genusColors && word.form && !isVerb(word)) {
     answerWord.innerHTML = "<span class=\"genus-" + word.form + "\">" + escapeHtml(getArticle(word)) + "</span> " +
       escapeHtml(word.noun);
   } else {
@@ -252,6 +255,60 @@ function speakQuestion(item, text) {
   }
 
   speak(text);
+}
+
+/*
+  Ablenker für "Bild finden" und die Nein-Fragen bei "Ja oder Nein":
+  - leicht:   aus anderen Wortfeldern (auch aus nicht ausgewählten, wenn nötig)
+  - gemischt: aus allen ausgewählten Wortfeldern (wie bisher)
+  - schwer:   aus demselben Wortfeld wie das gesuchte Wort
+  Reicht die bevorzugte Gruppe nicht, wird mit den übrigen aufgefüllt.
+  Tätigkeiten bekommen Tätigkeiten als Ablenker, Dinge bekommen Dinge.
+*/
+function pickDistractors(target, count) {
+  const kindOf = word => (word.form === "verb" ? "verb" : "ding");
+  const fits = word => word !== target &&
+    kindOf(word) === kindOf(target) &&
+    word.noun.toLowerCase() !== target.noun.toLowerCase();
+
+  const selection = session.items.filter(fits);
+  const sameField = shuffle(selection.filter(word => word.setId === target.setId));
+  const otherFields = shuffle(selection.filter(word => word.setId !== target.setId));
+
+  let ordered;
+
+  if (settings.distractors === "schwer") {
+    ordered = [...sameField, ...otherFields];
+  } else if (settings.distractors === "leicht") {
+    ordered = [...otherFields];
+    if (ordered.length < count) ordered.push(...getOutsideItems(target, count - ordered.length, fits));
+    ordered.push(...sameField);
+  } else {
+    ordered = shuffle(selection);
+  }
+
+  // Doppelte Wörter (gleiches Wort in zwei Wortfeldern) nur einmal
+  const seen = new Set();
+  return ordered.filter(word => {
+    const key = word.noun.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, count);
+}
+
+// Wörter aus Wortfeldern, die nicht ausgewählt sind – als Ablenker für "leicht"
+function getOutsideItems(target, count, fits) {
+  if (typeof homeData === "undefined") return [];
+
+  const selectedSetIds = new Set(session.items.map(item => item.setId));
+  const candidates = shuffle(homeData
+    .filter(entry => !selectedSetIds.has(entry.set.id))
+    .flatMap(entry => entry.words)
+    .filter(word => word.form && fits(word)))
+    .slice(0, count);
+
+  return prepareItems(candidates);
 }
 
 function shuffle(array) {

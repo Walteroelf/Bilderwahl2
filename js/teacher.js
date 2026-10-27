@@ -126,6 +126,7 @@ function openSettingsScreen(fromGame) {
   settingsCloseButton.classList.toggle("hidden", inGame);
 
   applySettingsToForm();
+  renderProfileSettings();
   updateOfflineStatus();
 
   settingsScreen.classList.remove("hidden");

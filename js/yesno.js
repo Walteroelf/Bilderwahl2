@@ -27,8 +27,9 @@ const yesNoExercise = {
     [yesButton, noButton].forEach(button => button.classList.remove("hint", "wrong", "correct"));
 
     // Etwa die Hälfte der Fragen passt zum Bild, die anderen fragen nach einem anderen Wort
-    const others = session.items.filter(other => other.noun !== item.noun);
-    yesNoAsked = others.length > 0 && Math.random() < 0.5 ? getRandomItem(others) : item;
+    // Bei "Nein"-Fragen wird nach einem Ablenker gefragt (leicht / gemischt / schwer)
+    const other = Math.random() < 0.5 ? pickDistractors(item, 1)[0] : null;
+    yesNoAsked = other || item;
 
     yesNoImage.innerHTML = "";
     const img = document.createElement("img");
@@ -54,10 +55,6 @@ const yesNoExercise = {
 
 yesButton.addEventListener("click", () => answerYesNo(true));
 noButton.addEventListener("click", () => answerYesNo(false));
-
-function buildYesNoQuestion(word) {
-  return (word.form === "pl" ? "Sind das " : "Ist das ") + getDisplayName(word) + "?";
-}
 
 function startYesNoGame(set, words) {
   return startSession(yesNoExercise, set, words, { statPrefix: "janein", words: words.filter(word => word.form) });

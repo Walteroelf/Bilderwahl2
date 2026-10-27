@@ -1,6 +1,7 @@
 /*
   Mitgelieferte Wortfelder mit Piktogrammen von ARASAAC.
   Die Bilder liegen in pictos/<Nummer>.png (Nummer = ARASAAC-Piktogramm-Nummer).
+  Tätigkeiten haben form "verb" und zusätzlich "third" (er/sie/es-Form: "schläft").
 */
 
 const ARASAAC_CREDIT_HTML =
@@ -353,6 +354,24 @@ const WORD_FIELDS = [
       { noun: "Schraubenzieher", form: "der", picto: 2736 },
       { noun: "Nagel", form: "der", picto: 8306 },
       { noun: "Leiter", form: "die", picto: 2743 }
+    ]
+  },
+  {
+    id: "taetigkeiten",
+    name: "Tätigkeiten",
+    words: [
+      { noun: "schlafen", form: "verb", third: "schläft", picto: 2369 },
+      { noun: "essen", form: "verb", third: "isst", picto: 2349 },
+      { noun: "trinken", form: "verb", third: "trinkt", picto: 2276 },
+      { noun: "malen", form: "verb", third: "malt", picto: 5574 },
+      { noun: "lesen", form: "verb", third: "liest", picto: 28643 },
+      { noun: "laufen", form: "verb", third: "läuft", picto: 2719 },
+      { noun: "schwimmen", form: "verb", third: "schwimmt", picto: 24903 },
+      { noun: "singen", form: "verb", third: "singt", picto: 28657 },
+      { noun: "tanzen", form: "verb", third: "tanzt", picto: 2652 },
+      { noun: "weinen", form: "verb", third: "weint", picto: 28645 },
+      { noun: "klettern", form: "verb", third: "klettert", picto: 8236 },
+      { noun: "kochen", form: "verb", third: "kocht", picto: 2342 }
     ]
   }
 ];

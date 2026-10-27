@@ -40,12 +40,12 @@ const namingExercise = {
     img.alt = "";
     namingImage.appendChild(img);
 
-    instruction.textContent = "Was ist das?";
+    instruction.textContent = buildNamingQuestion(item);
     setTimeout(() => this.repeat(), 400);
   },
 
   repeat() {
-    if (session.current) speak("Was ist das?");
+    if (session.current) speak(buildNamingQuestion(session.current));
   },
 
   stop() {
