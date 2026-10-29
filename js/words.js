@@ -231,41 +231,52 @@ function capitalize(text) {
 /*
   Satzbausteine. Tätigkeiten (form "verb") haben statt eines Artikels die
   er/sie/es-Form in "third": schlafen → "Wer schläft?", "Hier schläft jemand."
+  Personen (form "person", z. B. eigene Fotos) haben nur einen Namen:
+  "Wo ist Mia?", "Wer ist das?", "Das ist Mia."
 */
 
 function isVerb(word) {
   return word.form === "verb";
 }
 
+function isPerson(word) {
+  return word.form === "person";
+}
+
+// Wörter mit der/die/das (Mehrzahl zählt mit) – nur sie bekommen Artikel und Genusfarben
+function hasArticle(word) {
+  return ["der", "die", "das", "pl"].includes(word.form);
+}
+
 function getArticle(word) {
-  if (!word.form || isVerb(word)) return "";
+  if (!hasArticle(word)) return "";
   return word.form === "pl" ? "die" : word.form;
 }
 
 function getDisplayName(word) {
-  if (!word.form || isVerb(word)) return word.noun;
+  if (!hasArticle(word)) return word.noun;
   return getArticle(word) + " " + word.noun;
 }
 
-// "Wo ist der Schal?" / "Wo sind die Strümpfe?" / "Wer schläft?"
+// "Wo ist der Schal?" / "Wo sind die Strümpfe?" / "Wer schläft?" / "Wo ist Mia?"
 function buildQuestionForImage(word) {
   if (isVerb(word)) return "Wer " + word.third + "?";
   return (word.form === "pl" ? "Wo sind " : "Wo ist ") + getDisplayName(word) + "?";
 }
 
-// "Das ist der Schal." / "Das sind die Strümpfe." / "Hier schläft jemand."
+// "Das ist der Schal." / "Das sind die Strümpfe." / "Hier schläft jemand." / "Das ist Mia."
 function buildModelSentence(word) {
   if (isVerb(word)) return "Hier " + word.third + " jemand.";
   return (word.form === "pl" ? "Das sind " : "Das ist ") + getDisplayName(word) + ".";
 }
 
-// "Hier ist der Schal." / "Hier sind die Strümpfe." / "Hier schläft jemand."
+// "Hier ist der Schal." / "Hier sind die Strümpfe." / "Hier schläft jemand." / "Hier ist Mia."
 function buildHintSentence(word) {
   if (isVerb(word)) return "Hier " + word.third + " jemand.";
   return (word.form === "pl" ? "Hier sind " : "Hier ist ") + getDisplayName(word) + ".";
 }
 
-// Ja-oder-Nein-Frage: "Ist das der Schal?" / "Sind das die Strümpfe?" / "Schläft hier jemand?"
+// Ja-oder-Nein-Frage: "Ist das der Schal?" / "Sind das die Strümpfe?" / "Schläft hier jemand?" / "Ist das Mia?"
 function buildYesNoQuestion(word) {
   if (isVerb(word)) return capitalize(word.third) + " hier jemand?";
   return (word.form === "pl" ? "Sind das " : "Ist das ") + getDisplayName(word) + "?";
@@ -273,5 +284,12 @@ function buildYesNoQuestion(word) {
 
 // Frage beim Benennen
 function buildNamingQuestion(word) {
-  return isVerb(word) ? "Was passiert hier?" : "Was ist das?";
+  if (isVerb(word)) return "Was passiert hier?";
+  return isPerson(word) ? "Wer ist das?" : "Was ist das?";
+}
+
+// Dateinamen von Kameras und Handys ("IMG_4711", "DSC01234", "PXL_2026…") sind kein Name
+function isCameraFileName(fileName) {
+  return /^(img|dsc|dscn|dcim|pxl|photo|foto|bild|image|screenshot|bildschirmfoto|whatsapp image|signal)?[\s_-]*[\d\s_.:-]{3,}/i
+    .test(String(fileName).replace(/\.[^/.]+$/, ""));
 }

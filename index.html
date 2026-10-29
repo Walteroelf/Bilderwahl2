@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
   <meta name="theme-color" content="#3d7ab8" />
 
-  <link rel="stylesheet" href="css/style.css?v=19" />
+  <link rel="stylesheet" href="css/style.css?v=20" />
 </head>
 
 <body>
@@ -23,7 +23,7 @@
     <div class="curtain-valance"></div>
     <div class="curtain-sign">Bilderwahl</div>
   </div>
-  <script src="js/curtain.js?v=19"></script>
+  <script src="js/curtain.js?v=20"></script>
 
   <header>
     <!-- Markise wie im Kirmes-Kiosk, in ruhigem Blau -->
@@ -283,7 +283,19 @@
           oder einfach <strong>Strümpfe.png</strong>.
           Wort und Artikel lassen sich unten jederzeit ändern.
         </p>
+        <p>
+          Fotos von Personen: Statt eines Artikels <strong>„Person“</strong> wählen und den Namen eintragen.
+          Gefragt wird dann „Wo ist Mia?“ und „Wer ist das?“. Heißt das Foto schon
+          <strong>Mia.jpg</strong>, steht der Name bereits drin.
+        </p>
       </details>
+
+      <p class="person-hint hidden" id="personHint">
+        Personenfotos und Namen bleiben nur auf diesem Gerät. Bitte nur Vornamen oder Spitznamen eintragen
+        und Fotos nur mit Einverständnis verwenden. Namen spricht die Gerätestimme – oder eine eigene Aufnahme.
+      </p>
+
+      <button id="allPersonsButton" class="secondary small hidden">Alle Bilder ohne Artikel als Personen markieren</button>
 
       <div class="file-info" id="fileInfo"></div>
 
@@ -484,7 +496,7 @@
         </div>
             </div>
 
-      <p class="credit">Bilderwahl · <span class="version">Version 19</span></p>
+      <p class="credit">Bilderwahl · <span class="version">Version 20</span></p>
 
       <div class="button-row">
         <button id="settingsContinueButton">Weiter üben</button>
@@ -494,22 +506,22 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=19"></script>
-  <script src="js/wordfields.js?v=19"></script>
-  <script src="js/voice.js?v=19"></script>
-  <script src="js/db.js?v=19"></script>
-  <script src="js/speech.js?v=19"></script>
-  <script src="js/celebration.js?v=19"></script>
-  <script src="js/profiles.js?v=19"></script>
-  <script src="js/app.js?v=19"></script>
-  <script src="js/session.js?v=19"></script>
-  <script src="js/pick.js?v=19"></script>
-  <script src="js/sort.js?v=19"></script>
-  <script src="js/yesno.js?v=19"></script>
-  <script src="js/memory.js?v=19"></script>
-  <script src="js/naming.js?v=19"></script>
-  <script src="js/scratch.js?v=19"></script>
-  <script src="js/teacher.js?v=19"></script>
-  <script src="js/offline.js?v=19"></script>
+  <script src="js/words.js?v=20"></script>
+  <script src="js/wordfields.js?v=20"></script>
+  <script src="js/voice.js?v=20"></script>
+  <script src="js/db.js?v=20"></script>
+  <script src="js/speech.js?v=20"></script>
+  <script src="js/celebration.js?v=20"></script>
+  <script src="js/profiles.js?v=20"></script>
+  <script src="js/app.js?v=20"></script>
+  <script src="js/session.js?v=20"></script>
+  <script src="js/pick.js?v=20"></script>
+  <script src="js/sort.js?v=20"></script>
+  <script src="js/yesno.js?v=20"></script>
+  <script src="js/memory.js?v=20"></script>
+  <script src="js/naming.js?v=20"></script>
+  <script src="js/scratch.js?v=20"></script>
+  <script src="js/teacher.js?v=20"></script>
+  <script src="js/offline.js?v=20"></script>
 </body>
 </html>

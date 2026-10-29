@@ -237,7 +237,7 @@ function pickWrongMessage() {
 }
 
 function showAnswerWord(word) {
-  if (settings.genusColors && word.form && !isVerb(word)) {
+  if (settings.genusColors && hasArticle(word)) {
     answerWord.innerHTML = "<span class=\"genus-" + word.form + "\">" + escapeHtml(getArticle(word)) + "</span> " +
       escapeHtml(word.noun);
   } else {
@@ -263,10 +263,10 @@ function speakQuestion(item, text) {
   - gemischt: aus allen ausgewählten Wortfeldern (wie bisher)
   - schwer:   aus demselben Wortfeld wie das gesuchte Wort
   Reicht die bevorzugte Gruppe nicht, wird mit den übrigen aufgefüllt.
-  Tätigkeiten bekommen Tätigkeiten als Ablenker, Dinge bekommen Dinge.
+  Tätigkeiten bekommen Tätigkeiten als Ablenker, Personen Personen, Dinge Dinge.
 */
 function pickDistractors(target, count) {
-  const kindOf = word => (word.form === "verb" ? "verb" : "ding");
+  const kindOf = word => (isVerb(word) ? "verb" : isPerson(word) ? "person" : "ding");
   const fits = word => word !== target &&
     kindOf(word) === kindOf(target) &&
     word.noun.toLowerCase() !== target.noun.toLowerCase();
@@ -305,7 +305,7 @@ function getOutsideItems(target, count, fits) {
   const candidates = shuffle(homeData
     .filter(entry => !selectedSetIds.has(entry.set.id))
     .flatMap(entry => entry.words)
-    .filter(word => word.form && fits(word)))
+    .filter(word => word.form && word.noun && fits(word)))
     .slice(0, count);
 
   return prepareItems(candidates);

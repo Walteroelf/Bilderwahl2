@@ -78,7 +78,7 @@ for verb, third in verbs:
         third[0].upper() + third[1:] + " hier jemand?",
         verb,
     ])
-texts.update(["Was passiert hier?"])
+texts.update(["Was passiert hier?", "Wer ist das?"])
 
 out_dir = os.path.join(app, "audio/thorsten")
 os.makedirs(out_dir, exist_ok=True)

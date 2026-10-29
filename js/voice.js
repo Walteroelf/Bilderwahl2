@@ -1182,6 +1182,7 @@ const VOICE_CLIPS = {
 "Weihnachtsmann": "76816b5d16",
 "Weint hier jemand?": "a34ef67198",
 "Wer isst?": "ab6655ac2c",
+"Wer ist das?": "da60ecdd02",
 "Wer klettert?": "068d4a77f9",
 "Wer kocht?": "9db62a1eb7",
 "Wer liest?": "b2d06bf71d",

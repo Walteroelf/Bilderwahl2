@@ -1972,3 +1972,17 @@ table.stats td {
 
 
 }
+
+/* Personenfotos im Editor */
+.person-hint {
+  margin: 8px 0;
+  padding: 10px 12px;
+  font-size: 15px;
+  border-left: 5px solid var(--markise);
+  border-radius: 8px;
+  background: var(--tresen);
+}
+
+#allPersonsButton {
+  margin: 4px 0 8px;
+}

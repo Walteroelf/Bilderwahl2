@@ -32,7 +32,8 @@ const FORM_OPTIONS = [
   ["der", "der"],
   ["die", "die"],
   ["das", "das"],
-  ["pl", "die (Mehrzahl)"]
+  ["pl", "die (Mehrzahl)"],
+  ["person", "Person"]
 ];
 
 /* ---------- Einstellungen ---------- */
@@ -130,6 +131,8 @@ const editorTitle = document.getElementById("editorTitle");
 const setNameInput = document.getElementById("setNameInput");
 const fileInput = document.getElementById("fileInput");
 const fileInfo = document.getElementById("fileInfo");
+const allPersonsButton = document.getElementById("allPersonsButton");
+const personHint = document.getElementById("personHint");
 const wordRows = document.getElementById("wordRows");
 const saveSetButton = document.getElementById("saveSetButton");
 const cancelEditButton = document.getElementById("cancelEditButton");
@@ -203,6 +206,13 @@ saveSetButton.addEventListener("click", saveEditor);
 cancelEditButton.addEventListener("click", closeEditor);
 wordRows.addEventListener("click", handleWordRowClick);
 wordRows.addEventListener("change", handleWordRowChange);
+allPersonsButton.addEventListener("click", () => {
+  editingWords.forEach(word => {
+    if (!word.form) word.form = "person";
+  });
+  fileInfo.textContent = "";
+  renderWordRows();
+});
 
 statsBackButton.addEventListener("click", () => showField(statsSet.id));
 statsResetButton.addEventListener("click", resetStatsOfSet);
@@ -502,6 +512,8 @@ function combineWords(items) {
 
   items.forEach(({ words }) => {
     words.forEach(word => {
+      // Ohne Wort oder Namen kann nichts gefragt werden
+      if (!word.noun) return;
       const key = (word.form || "") + "|" + word.noun.toLowerCase();
       if (seen.has(key)) return;
       seen.add(key);
@@ -552,7 +564,7 @@ async function showField(setId) {
   }
 
   const words = await getWordsOfSet(set.id);
-  const missing = words.filter(word => !word.form).length;
+  const missing = words.filter(word => !word.form || !word.noun).length;
   const usesArasaac = words.some(word => word.credit === "ARASAAC");
 
   fieldTitle.textContent = set.name;
@@ -578,7 +590,7 @@ async function showField(setId) {
 
     const caption = document.createElement("figcaption");
 
-    if (isVerb(word)) {
+    if (word.form && !hasArticle(word)) {
       caption.textContent = word.noun;
     } else if (word.form) {
       caption.innerHTML = "<span class=\"genus-" + word.form + "\">" + escapeHtml(getArticle(word)) + "</span> " +
@@ -687,8 +699,10 @@ function showExercise() {
 
   setExerciseState(exerciseHouses, exerciseHousesNote, houseCount >= 2,
     Math.min(getRoundLength() || houseCount, houseCount) + " Bilder zum Einsortieren",
-    exerciseWords.length > 0 && exerciseWords.every(isVerb)
-      ? "Tätigkeiten haben keinen Artikel."
+    exerciseWords.length > 0 && exerciseWords.every(word => isVerb(word) || isPerson(word))
+      ? (exerciseWords.every(isPerson) ? "Namen haben keinen Artikel."
+        : exerciseWords.every(isVerb) ? "Tätigkeiten haben keinen Artikel."
+        : "Tätigkeiten und Namen haben keinen Artikel.")
       : "Mindestens 2 Wörter mit Artikel nötig.");
 
   setExerciseState(exerciseSort, exerciseSortNote, items.length >= 2 && items.length <= 4,
@@ -764,7 +778,8 @@ async function addFilesToEditor(event) {
       continue;
     }
 
-    const parsed = parseImageName(file.name);
+    // Kameranamen wie "IMG_4711" ergeben kein Wort – dann bleibt das Feld leer
+    const parsed = isCameraFileName(file.name) ? { noun: "", form: null } : parseImageName(file.name);
 
     editingWords.push({
       id: createId(),
@@ -864,7 +879,7 @@ function renderWordRows() {
   const showRecordings = settings.recordings && canRecordAudio();
 
   wordRows.innerHTML = editingWords.map((word, index) => {
-    let html = "<div class=\"word-row" + (word.form ? "" : " missing") + "\" data-index=\"" + index + "\">" +
+    let html = "<div class=\"word-row" + (word.form && word.noun ? "" : " missing") + "\" data-index=\"" + index + "\">" +
       "<img src=\"" + word.imageUrl + "\" alt=\"\" />" +
       "<div class=\"word-fields\">" +
       "<div class=\"word-inputs\">" +
@@ -873,11 +888,15 @@ function renderWordRows() {
           "<input type=\"text\" class=\"text-input noun-input\" value=\"" + escapeHtml(word.noun) + "\" aria-label=\"Tätigkeit (Grundform)\" />" +
           "<input type=\"text\" class=\"text-input third-input\" value=\"" + escapeHtml(word.third || "") + "\" aria-label=\"er/sie-Form, z. B. schläft\" placeholder=\"er/sie …\" />"
         : buildFormSelect(word, index) +
-          "<input type=\"text\" class=\"text-input noun-input\" value=\"" + escapeHtml(word.noun) + "\" aria-label=\"Wort\" />") +
+          "<input type=\"text\" class=\"text-input noun-input\" value=\"" + escapeHtml(word.noun) + "\" aria-label=\"" +
+          (isPerson(word) ? "Name" : "Wort") + "\" placeholder=\"" + (isPerson(word) ? "Vorname" : "Wort") + "\" />") +
       "</div>" +
-      "<div class=\"word-question\">" + (word.form
-        ? escapeHtml(buildQuestionForImage(word))
-        : "<span class=\"warning\">Bitte Artikel wählen</span>") +
+      "<div class=\"word-question\">" + (!word.noun
+        ? "<span class=\"warning\">" + (isPerson(word) ? "Bitte Namen eintragen" : "Bitte Wort eintragen") + "</span>"
+        : word.form
+          ? escapeHtml(buildQuestionForImage(word)) +
+            (isPerson(word) ? " · " + escapeHtml(buildNamingQuestion(word)) : "")
+          : "<span class=\"warning\">Bitte Artikel oder „Person“ wählen</span>") +
       "</div>";
 
     if (showRecordings) {
@@ -915,8 +934,16 @@ function updateEditorStatus() {
   const missing = editingWords.filter(word => !word.form).length;
   saveSetButton.disabled = editingWords.length === 0;
 
+  // Bilder ohne Artikel auf einmal als Personen markieren (z. B. Klassenfotos)
+  allPersonsButton.classList.toggle("hidden", missing < 2);
+  personHint.classList.toggle("hidden", !editingWords.some(isPerson));
+
+  const noName = editingWords.filter(word => word.form && !word.noun).length;
+
   if (missing > 0 && !fileInfo.textContent) {
-    fileInfo.textContent = "Bei " + missing + " Wort/Wörtern fehlt der Artikel. Speichern geht trotzdem, gespielt werden nur Wörter mit Artikel.";
+    fileInfo.textContent = "Bei " + missing + " Bild(ern) fehlt der Artikel oder „Person“. Speichern geht trotzdem, gespielt werden nur Bilder mit Artikel oder „Person“.";
+  } else if (noName > 0 && !fileInfo.textContent) {
+    fileInfo.textContent = "Bei " + noName + " Bild(ern) fehlt noch das Wort oder der Name.";
   }
 }
 
@@ -928,11 +955,12 @@ function handleWordRowChange(event) {
 
   if (event.target.classList.contains("form-select")) {
     word.form = event.target.value || null;
-    if (word.form) saveForm(word.noun, word.form);
+    // Namen nicht merken – der Artikel-Speicher gilt für Wörter
+    if (word.form && !isPerson(word)) saveForm(word.noun, word.form);
   }
 
   if (event.target.classList.contains("noun-input")) {
-    if (isVerb(word)) {
+    if (isVerb(word) || isPerson(word)) {
       word.noun = event.target.value.trim();
     } else {
       // Eingabe wie "der Schal" oder "Strümpfe" wird wie ein Dateiname gelesen
@@ -1051,6 +1079,11 @@ async function dataUrlToBlob(dataUrl) {
 }
 
 async function exportSet(set, words) {
+  if (words.some(isPerson) && !confirm(
+    "In diesem Wortfeld sind Fotos und Namen von Personen. Die Datei enthält sie – " +
+    "bitte nur weitergeben, wo das erlaubt ist (z. B. nicht in Cloud-Ordner oder Messenger). Trotzdem exportieren?"
+  )) return;
+
   const data = {
     app: "bilderwahl",
     format: 1,
@@ -1092,7 +1125,7 @@ async function importSetFromFile(event) {
     const words = await Promise.all(data.words.slice(0, MAX_WORDS_PER_SET).map(async word => ({
       id: createId(),
       noun: String(word.noun || ""),
-      form: ["der", "die", "das", "pl", "verb"].includes(word.form) ? word.form : null,
+      form: ["der", "die", "das", "pl", "verb", "person"].includes(word.form) ? word.form : null,
       third: word.form === "verb" ? String(word.third || "") : null,
       image: await dataUrlToBlob(word.image),
       audio: word.audio ? await dataUrlToBlob(word.audio) : null,
