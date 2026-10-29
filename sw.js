@@ -8,7 +8,7 @@
     gespeichert, oder alle auf einmal über "Für Offline-Nutzung laden".
 */
 
-const VERSION = "20";
+const VERSION = "21";
 const APP_CACHE = "bilderwahl-app-" + VERSION;
 const MEDIA_CACHE = "bilderwahl-medien";
 
@@ -76,11 +76,12 @@ self.addEventListener("fetch", event => {
 
   // Seite selbst: zuerst aus dem Netz (für Updates), ohne Netz aus dem Speicher.
   // Bei sehr langsamer Verbindung nach 4 Sekunden die gespeicherte Fassung.
+  // "no-cache": nicht die bis zu 10 Minuten alte Fassung aus dem Browser-Cache nehmen
   if (request.mode === "navigate") {
     const timeout = new Promise((resolve, reject) => setTimeout(() => reject(new Error("Zeitüberschreitung")), 4000));
 
     event.respondWith(
-      Promise.race([fetch(request), timeout])
+      Promise.race([fetch(request.url, { cache: "no-cache", credentials: "same-origin" }), timeout])
         .then(response => {
           const copy = response.clone();
           caches.open(APP_CACHE).then(cache => cache.put("index.html", copy));
