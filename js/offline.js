@@ -37,7 +37,7 @@ async function updateOfflineStatus() {
     const missing = urls.filter(url => !stored.has(url)).length;
 
     if (missing === 0) {
-      offlineStatus.textContent = "✓ Alles ist auf diesem Gerät gespeichert. Die App funktioniert auch ohne Internet.";
+      offlineStatus.textContent = "Alles ist auf diesem Gerät gespeichert. Die App funktioniert auch ohne Internet.";
       offlineButton.classList.add("hidden");
     } else {
       offlineStatus.textContent = "Die App selbst startet auch ohne Internet. Für die natürliche Stimme und die " +

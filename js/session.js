@@ -178,9 +178,9 @@ function updateSessionScore() {
     return;
   }
 
-  // Auf schmalen Bildschirmen wird die Beschriftung ausgeblendet (nur "✓ 3 von 4")
+  // Auf schmalen Bildschirmen wird die Beschriftung ausgeblendet (nur "3 von 4")
   scoreDisplay.innerHTML = "<span class=\"score-label\">Beim ersten Versuch richtig: </span>" +
-    "<span class=\"score-short\" aria-hidden=\"true\">✓ </span>" + session.firstTry + " von " + session.done;
+    "<span class=\"score-short\" aria-hidden=\"true\"><svg class=\"symbol\"><use href=\"#i-haken\"/></svg> </span>" + session.firstTry + " von " + session.done;
   scoreDisplay.classList.remove("hidden");
 }
 
