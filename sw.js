@@ -8,7 +8,7 @@
     gespeichert, oder alle auf einmal über "Für Offline-Nutzung laden".
 */
 
-const VERSION = "22";
+const VERSION = "23";
 const APP_CACHE = "bilderwahl-app-" + VERSION;
 const MEDIA_CACHE = "bilderwahl-medien";
 
@@ -20,7 +20,7 @@ const APP_FILES = [
   "icon-512.png",
   "schriften/andika-400.woff2",
   "schriften/andika-700.woff2",
-  "schriften/grandstander.woff2",
+  "design.css?v=3",
   "css/style.css?v=" + VERSION,
   "js/curtain.js?v=" + VERSION,
   "js/words.js?v=" + VERSION,

@@ -1,3 +1,10 @@
+// Linien-Symbole aus dem Sprite in index.html
+const symbolSvg = id => "<svg class=\"symbol\" aria-hidden=\"true\"><use href=\"#" + id + "\"/></svg>";
+const ICON_MIKRO = symbolSvg("i-mikro");
+const ICON_STOPP = symbolSvg("i-stopp");
+const ICON_PLAY = symbolSvg("i-abspielen");
+const ICON_X = symbolSvg("i-schliessen");
+
 const MAX_WORDS_PER_SET = 40;
 const MAX_IMAGE_SIZE = 1200;
 
@@ -904,16 +911,16 @@ function renderWordRows() {
 
       html += "<div class=\"word-audio\">" +
         "<button class=\"small" + (recording ? " recording" : "") + "\" data-action=\"record\">" +
-        (recording ? "■ Stopp" : (word.audio ? "🎤 Neu aufnehmen" : "🎤 Aufnehmen")) + "</button>" +
+        (recording ? ICON_STOPP + " Stopp" : (word.audio ? ICON_MIKRO + " Neu aufnehmen" : ICON_MIKRO + " Aufnehmen")) + "</button>" +
         (word.audio
-          ? "<button class=\"small secondary\" data-action=\"play\">▶ Anhören</button>" +
+          ? "<button class=\"small secondary\" data-action=\"play\">" + ICON_PLAY + " Anhören</button>" +
             "<button class=\"small secondary\" data-action=\"delete-audio\">Aufnahme löschen</button>"
           : "<span class=\"hint\">sonst Computerstimme</span>") +
         "</div>";
     }
 
     html += "</div>" +
-      "<button class=\"small secondary remove-word\" data-action=\"remove\" aria-label=\"Wort entfernen\">✕</button>" +
+      "<button class=\"small secondary remove-word\" data-action=\"remove\" aria-label=\"Wort entfernen\">" + ICON_X + "</button>" +
       "</div>";
 
     return html;

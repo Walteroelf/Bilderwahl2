@@ -10,12 +10,21 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Bilderwahl" />
-  <meta name="theme-color" content="#3d7ab8" />
+  <meta name="theme-color" content="#4DB2E6" />
 
-  <link rel="stylesheet" href="css/style.css?v=22" />
+  <link rel="stylesheet" href="design.css?v=3" />
+  <link rel="stylesheet" href="css/style.css?v=23" />
 </head>
 
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-haken" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-schliessen" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-mikro" viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></symbol>
+    <symbol id="i-stopp" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+    <symbol id="i-abspielen" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+    <symbol id="i-ungefaehr" viewBox="0 0 24 24"><path d="M4.5 9.5c2.5-3 5-3 7.500 0s5 3 7.500 0M4.5 15.5c2.500-3 5-3 7.500 0s5 3 7.500 0"/></symbol>
+  </svg>
   <!-- Vorhang beim Öffnen der App (js/curtain.js) -->
   <div class="curtain" id="curtain" aria-hidden="true">
     <div class="curtain-half curtain-left"></div>
@@ -23,10 +32,10 @@
     <div class="curtain-valance"></div>
     <div class="curtain-sign">Bilderwahl</div>
   </div>
-  <script src="js/curtain.js?v=22"></script>
+  <script src="js/curtain.js?v=23"></script>
 
   <header>
-    <!-- Markise wie im Kirmes-Kiosk, in ruhigem Blau -->
+    <!-- Farbband wie in den anderen Apps -->
     <div class="markise" aria-hidden="true"></div>
     <div class="kopf">
       <h1 class="schild">Bilderwahl</h1>
@@ -62,8 +71,8 @@
     <div id="yesNoGame" class="game hidden">
       <div class="single-image" id="yesNoImage"></div>
       <div class="yes-no-buttons">
-        <button id="yesButton" class="yes-button" aria-label="Ja"><span aria-hidden="true">✓</span> Ja</button>
-        <button id="noButton" class="no-button" aria-label="Nein"><span aria-hidden="true">✗</span> Nein</button>
+        <button id="yesButton" class="yes-button" aria-label="Ja"><svg class="symbol" aria-hidden="true"><use href="#i-haken"/></svg> Ja</button>
+        <button id="noButton" class="no-button" aria-label="Nein"><svg class="symbol" aria-hidden="true"><use href="#i-schliessen"/></svg> Nein</button>
       </div>
     </div>
 
@@ -76,15 +85,15 @@
     <div id="namingGame" class="game hidden">
       <div class="single-image" id="namingImage"></div>
       <div class="button-row center">
-        <button id="namingRecordButton" class="secondary">🎤 Antwort aufnehmen</button>
-        <button id="namingPlayButton" class="secondary hidden">▶ Antwort anhören</button>
+        <button id="namingRecordButton" class="secondary"><svg class="symbol" aria-hidden="true"><use href="#i-mikro"/></svg> Antwort aufnehmen</button>
+        <button id="namingPlayButton" class="secondary hidden"><svg class="symbol" aria-hidden="true"><use href="#i-abspielen"/></svg> Antwort anhören</button>
         <button id="namingSolutionButton" class="secondary">Lösung hören</button>
       </div>
       <div class="naming-rating" id="namingRating">
         <span class="hint">Bewertung durch die Lehrkraft:</span>
-        <button data-rating="richtig" class="rating-good">✓ Richtig gesagt</button>
-        <button data-rating="teilweise" class="rating-partial">≈ Teilweise</button>
-        <button data-rating="nicht" class="rating-not">✗ Noch nicht</button>
+        <button data-rating="richtig" class="rating-good"><svg class="symbol" aria-hidden="true"><use href="#i-haken"/></svg> Richtig gesagt</button>
+        <button data-rating="teilweise" class="rating-partial"><svg class="symbol" aria-hidden="true"><use href="#i-ungefaehr"/></svg> Teilweise</button>
+        <button data-rating="nicht" class="rating-not"><svg class="symbol" aria-hidden="true"><use href="#i-schliessen"/></svg> Noch nicht</button>
       </div>
     </div>
 
@@ -507,22 +516,22 @@
     </div>
   </div>
 
-  <script src="js/words.js?v=22"></script>
-  <script src="js/wordfields.js?v=22"></script>
-  <script src="js/voice.js?v=22"></script>
-  <script src="js/db.js?v=22"></script>
-  <script src="js/speech.js?v=22"></script>
-  <script src="js/celebration.js?v=22"></script>
-  <script src="js/profiles.js?v=22"></script>
-  <script src="js/app.js?v=22"></script>
-  <script src="js/session.js?v=22"></script>
-  <script src="js/pick.js?v=22"></script>
-  <script src="js/sort.js?v=22"></script>
-  <script src="js/yesno.js?v=22"></script>
-  <script src="js/memory.js?v=22"></script>
-  <script src="js/naming.js?v=22"></script>
-  <script src="js/scratch.js?v=22"></script>
-  <script src="js/teacher.js?v=22"></script>
-  <script src="js/offline.js?v=22"></script>
+  <script src="js/words.js?v=23"></script>
+  <script src="js/wordfields.js?v=23"></script>
+  <script src="js/voice.js?v=23"></script>
+  <script src="js/db.js?v=23"></script>
+  <script src="js/speech.js?v=23"></script>
+  <script src="js/celebration.js?v=23"></script>
+  <script src="js/profiles.js?v=23"></script>
+  <script src="js/app.js?v=23"></script>
+  <script src="js/session.js?v=23"></script>
+  <script src="js/pick.js?v=23"></script>
+  <script src="js/sort.js?v=23"></script>
+  <script src="js/yesno.js?v=23"></script>
+  <script src="js/memory.js?v=23"></script>
+  <script src="js/naming.js?v=23"></script>
+  <script src="js/scratch.js?v=23"></script>
+  <script src="js/teacher.js?v=23"></script>
+  <script src="js/offline.js?v=23"></script>
 </body>
 </html>

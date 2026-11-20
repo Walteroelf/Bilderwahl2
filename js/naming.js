@@ -30,7 +30,7 @@ const namingExercise = {
     namingRated = false;
     namingRecording = null;
     namingPlayButton.classList.add("hidden");
-    namingRecordButton.textContent = "🎤 Antwort aufnehmen";
+    namingRecordButton.innerHTML = ICON_MIKRO + " Antwort aufnehmen";
     namingRecordButton.classList.remove("recording");
     namingRating.querySelectorAll("button").forEach(button => { button.disabled = false; });
 
@@ -108,7 +108,7 @@ async function toggleNamingRecording() {
 
   try {
     namingRecorder = await startRecording();
-    namingRecordButton.textContent = "■ Aufnahme beenden";
+    namingRecordButton.innerHTML = ICON_STOPP + " Aufnahme beenden";
     namingRecordButton.classList.add("recording");
   } catch (error) {
     instruction.textContent = "Das Mikrofon konnte nicht gestartet werden.";
@@ -121,7 +121,7 @@ async function stopNamingRecording(discard) {
   const recorder = namingRecorder;
   namingRecorder = null;
 
-  namingRecordButton.textContent = "🎤 Neu aufnehmen";
+  namingRecordButton.innerHTML = ICON_MIKRO + " Neu aufnehmen";
   namingRecordButton.classList.remove("recording");
 
   const blob = await recorder.stop();

@@ -20,4 +20,4 @@ Diese Bestandteile stammen nicht von Walteroelf und behalten ihre eigene Lizenz:
 
 - **Piktogramme** (`pictos/`): ARASAAC, Autor Sergio Palao, Eigentum Regierung von Aragón, Lizenz CC BY-NC-SA 4.0 (https://arasaac.org)
 - **Sprachaufnahmen** (`audio/`): Stimme Thorsten-Voice von Thorsten Müller, Datensatz CC0
-- **Schriften** (`schriften/`): Andika (SIL International) und Grandstander (Tyler Finck), SIL Open Font License 1.1
+- **Schriften** (`schriften/`): Andika (SIL International), SIL Open Font License 1.1

@@ -1,5 +1,5 @@
 /*
-  Vorhang beim Öffnen der App: Ein roter Samtvorhang mit dem Schild
+  Vorhang beim Öffnen der App: Ein blauer Samtvorhang mit dem Schild
   "Bilderwahl" geht nach kurzer Pause auf (insgesamt etwa 1,6 Sekunden).
   Antippen öffnet ihn sofort. Bei "Bewegung reduzieren" wird nur ausgeblendet.
   Nur beim Laden der Seite – nicht beim Zurückkehren aus einer Übung.
