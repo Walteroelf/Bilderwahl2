@@ -13,7 +13,11 @@
     ruhig:   nur ein kurzes, sanftes Funkeln
 */
 
-const CELEBRATION_COLORS = ["#ff5c8a", "#ffb703", "#3dd598", "#4cc9f0", "#7b61ff", "#ff8a3d"];
+// Farben der Palette aus design.css (DESIGN.md): Hellblau, Grün, Hellgrün, Gelb, Orange
+const CELEBRATION_COLORS = ["#4DB2E6", "#46A84A", "#A6D27A", "#FFD100", "#F39200"];
+const CELEBRATION_YELLOW = "#FFD100";
+const CELEBRATION_ORANGE = "#F39200";
+const CELEBRATION_LINE = "#0D2B4E";
 
 const CELEBRATION_ALIASES = {
   confetti: "confetti",
@@ -156,7 +160,7 @@ function confettiCannons() {
   });
 }
 
-// Goldene Sterne springen vom Bild nach außen und funkeln
+// Sterne springen vom Bild nach außen und funkeln
 function starBurst(origin, count, strength) {
   for (let i = 0; i < count; i++) {
     const angle = (i / count) * Math.PI * 2 + random(-0.2, 0.2);
@@ -173,7 +177,7 @@ function starBurst(origin, count, strength) {
       rotation: random(0, Math.PI),
       spin: random(-0.08, 0.08),
       size: random(13, 26) * (0.6 + strength * 0.4),
-      color: ["#ffd166", "#ffb703", "#ffe066", "#ffc43d"][i % 4],
+      color: [CELEBRATION_YELLOW, CELEBRATION_ORANGE][i % 2],
       life: 0,
       maxLife: random(70, 95)
     });
@@ -191,7 +195,7 @@ function starBurst(origin, count, strength) {
       gravity: 0.02,
       drag: 0.92,
       size: random(1.8, 3.2),
-      color: "#ffe9a8",
+      color: "#FFFFFF",
       life: 0,
       maxLife: random(35, 55)
     });
@@ -236,7 +240,7 @@ function hearts(origin) {
         drag: 0.99,
         swayPhase: random(0, Math.PI * 2),
         size: random(26, 46),
-        color: ["#ff5c8a", "#ff8fab", "#e63973", "#ff4d6d"][i % 4],
+        color: [CELEBRATION_ORANGE, CELEBRATION_YELLOW, "#4DB2E6", "#A6D27A"][i % 4],
         life: 0,
         maxLife: random(110, 150)
       });
@@ -260,7 +264,7 @@ function petals() {
       rotation: random(0, Math.PI * 2),
       spin: random(-0.06, 0.06),
       size: random(9, 16),
-      color: ["#ff5c8a", "#ff8fab", "#c77dff", "#ff8a3d", "#4cc9f0"][i % 5],
+      color: ["#4DB2E6", "#A6D27A", "#FFFFFF", CELEBRATION_ORANGE, "#B9C1C8"][i % 5],
       life: 0,
       maxLife: 500
     });
@@ -314,7 +318,7 @@ function explode(x, y, color) {
       gravity: 0.07 * scale,
       drag: 0.962,
       size: random(2.6, 4.2),
-      color: i % 5 === 0 ? "#ffe9a8" : color,
+      color: i % 5 === 0 ? "#FFFFFF" : color,
       life: 0,
       maxLife: random(70, 100)
     });
@@ -351,7 +355,7 @@ function drawCelebration() {
       }
 
       drawGlowDot(context, p.x - p.vx * 2, p.y - p.vy * 2, 2, p.color, 0.6);
-      drawGlowDot(context, p.x, p.y, 3, "#fff6d5", 1);
+      drawGlowDot(context, p.x, p.y, 3, "#FFFFFF", 1);
       next.push(p);
       return;
     }
@@ -439,8 +443,6 @@ function drawCelebration() {
       context.strokeStyle = p.color;
       context.lineWidth = p.size;
       context.lineCap = "round";
-      context.shadowColor = p.color;
-      context.shadowBlur = 10;
       context.beginPath();
       context.moveTo(p.previousX - p.vx * 3, p.previousY - p.vy * 3);
       context.lineTo(p.x, p.y);
@@ -464,8 +466,6 @@ function drawGlowDot(context, x, y, radius, color, alpha) {
   context.save();
   context.globalAlpha = alpha;
   context.fillStyle = color;
-  context.shadowColor = color;
-  context.shadowBlur = radius * 4;
   context.beginPath();
   context.arc(x, y, radius, 0, Math.PI * 2);
   context.fill();
@@ -478,8 +478,6 @@ function drawStar(context, x, y, size, rotation, color, alpha) {
   context.translate(x, y);
   context.rotate(rotation);
   context.fillStyle = color;
-  context.shadowColor = "#ffcf33";
-  context.shadowBlur = size * 0.8;
   context.beginPath();
 
   for (let i = 0; i < 10; i++) {
@@ -491,9 +489,8 @@ function drawStar(context, x, y, size, rotation, color, alpha) {
   context.closePath();
   context.fill();
 
-  // Goldener Rand, damit die Sterne auch auf Weiß gut sichtbar sind
-  context.shadowBlur = 0;
-  context.strokeStyle = "#e09200";
+  // Oranger Rand, damit die Sterne auch auf Weiß gut sichtbar sind
+  context.strokeStyle = CELEBRATION_ORANGE;
   context.lineWidth = Math.max(1, size * 0.08);
   context.lineJoin = "round";
   context.stroke();
@@ -517,7 +514,7 @@ function drawBlossom(context, p, alpha) {
     context.fill();
   }
 
-  context.fillStyle = "#ffd166";
+  context.fillStyle = CELEBRATION_YELLOW;
   context.beginPath();
   context.arc(0, 0, p.size * 0.3, 0, Math.PI * 2);
   context.fill();
@@ -530,8 +527,6 @@ function drawHeart(context, x, y, size, color, alpha) {
   context.translate(x, y);
   context.scale(size / 28, size / 28);
   context.fillStyle = color;
-  context.shadowColor = "rgba(230, 57, 115, 0.45)";
-  context.shadowBlur = 10;
   context.beginPath();
   context.moveTo(0, 6);
   context.bezierCurveTo(-14, -4, -8, -16, 0, -8);
@@ -548,7 +543,7 @@ function drawBalloon(context, p) {
   context.translate(p.x, p.y);
 
   // Schnur
-  context.strokeStyle = "rgba(71, 85, 105, 0.6)";
+  context.strokeStyle = CELEBRATION_LINE;
   context.lineWidth = 1.5;
   context.beginPath();
   context.moveTo(0, radiusY + 6);

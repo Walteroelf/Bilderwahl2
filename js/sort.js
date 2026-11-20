@@ -6,7 +6,7 @@
 */
 
 const HOUSE_FORMS = ["der", "die", "das", "pl"];
-const FIELD_HOUSE_COLORS = ["#7c3aed", "#0891b2", "#db2777", "#65a30d"];
+const FIELD_HOUSE_COLORS = ["#4DB2E6", "#FFD100", "#A6D27A", "#F39200"];  // Hellblau, Gelb, Hellgrün, Orange
 
 const houseGame = document.getElementById("houseGame");
 const houseStage = document.getElementById("houseStage");

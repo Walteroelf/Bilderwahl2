@@ -15,7 +15,8 @@ const SCRATCH_BRUSHES = {
   mittel: { share: 0.06, min: 22 },
   gross: { share: 0.09, min: 32 }
 };
-const SCRATCH_COLOR = "#e00000";
+// Deckfläche: Fachfarbe Deutsch (warmes Zinnoberrot) aus design.css, kein Signalrot
+const SCRATCH_COLOR = getComputedStyle(document.documentElement).getPropertyValue("--fach-deutsch").trim() || "#EF6B45";
 
 const scratchGame = document.getElementById("scratchGame");
 const scratchArea = document.getElementById("scratchArea");
